@@ -34,10 +34,10 @@ servers:
 tags:
   - name: workspace
     description: Workspace related resources.
-  - name: source
-    description: Source related resources.
-  - name: source_specification
-    description: Source specification related resources.
+  - name: source_definition
+    description: SourceDefinition related resources.
+  - name: source_definition_specification
+    description: SourceDefinition specification related resources.
   - name: source_implementation
     description: Source implementation related resources.
   - name: destination
@@ -121,72 +121,72 @@ paths:
           description: Workspace not found
         "422":
           $ref: "#/components/responses/InvalidInput"
-  /v1/sources/create:
+  /v1/source_definitions/create:
     post:
       tags:
-        - source
-      summary: Creates a source
-      operationId: createSource
+        - source_definition
+      summary: Creates a sourceDefinition
+      operationId: createSourceDefinition
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/SourceCreate"
+              $ref: "#/components/schemas/SourceDefinitionCreate"
       responses:
         "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SourceRead"
+                $ref: "#/components/schemas/SourceDefinitionRead"
         "422":
           $ref: "#/components/responses/InvalidInput"
-  /v1/sources/update:
+  /v1/source_definitions/update:
     post:
       tags:
-        - source
-      summary: Update a source
-      operationId: updateSource
+        - source_definition
+      summary: Update a sourceDefinition
+      operationId: updateSourceDefinition
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/SourceUpdate"
+              $ref: "#/components/schemas/SourceDefinitionUpdate"
       responses:
         "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SourceRead"
+                $ref: "#/components/schemas/SourceDefinitionRead"
         "404":
-          description: Source not found
+          description: SourceDefinition not found
         "422":
           $ref: "#/components/responses/InvalidInput"
-  /v1/sources/list:
+  /v1/source_definitions/list:
     post:
       tags:
-        - source
-      summary: List all of the sources that Airbyte supports
-      operationId: listSources
+        - source_definition
+      summary: List all of the sourceDefinitions that Airbyte supports
+      operationId: listSourceDefinitions
       responses:
         "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SourceReadList"
-  /v1/sources/get:
+                $ref: "#/components/schemas/SourceDefinitionReadList"
+  /v1/source_definitions/get:
     post:
       tags:
         - source
       summary: Get source
-      operationId: getSource
+      operationId: getSourceDefinition
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/SourceIdRequestBody"
+              $ref: "#/components/schemas/SourceDefinitionIdRequestBody"
         required: true
       responses:
         "200":
@@ -194,9 +194,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SourceRead"
+                $ref: "#/components/schemas/SourceDefinitionRead"
         "404":
-          description: Source not found
+          description: SourceDefinition not found
         "422":
           $ref: "#/components/responses/InvalidInput"
   # todo (cgardens) - rename to source_specifications/get_latest_from_source_id
@@ -205,12 +205,12 @@ paths:
       tags:
         - source_specification
       summary: Get specification for a source.
-      operationId: getSourceSpecification
+      operationId: getSourceDefinitionSpecification
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/SourceIdRequestBody"
+              $ref: "#/components/schemas/SourceDefinitionIdRequestBody"
         required: true
       responses:
         "200":
@@ -218,9 +218,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SourceSpecificationRead"
+                $ref: "#/components/schemas/SourceDefinitionSpecificationRead"
         "404":
-          description: Source not found
+          description: SourceDefinition not found
         "422":
           $ref: "#/components/responses/InvalidInput"
   /v1/source_implementations/create:
@@ -971,18 +971,18 @@ components:
       properties:
         slug:
           type: string
-    # SOURCE
-    SourceId:
+    # SourceDefinition
+    SourceDefinitionId:
       type: string
       format: uuid
-    SourceIdRequestBody:
+    SourceDefinitionIdRequestBody:
       type: object
       required:
-        - sourceId
+        - sourceDefinitionId
       properties:
-        sourceId:
-          $ref: "#/components/schemas/SourceId"
-    SourceCreate:
+        sourceDefinitionId:
+          $ref: "#/components/schemas/SourceDefinitionId"
+    SourceDefinitionCreate:
       type: object
       required:
         - name
@@ -999,18 +999,18 @@ components:
         documentationUrl:
           type: string
           format: uri
-    SourceUpdate:
+    SourceDefinitionUpdate:
       type: object
-      description: Update the source. Currently, the only allowed attribute to update is the default docker image version.
+      description: Update the SourceDefinition. Currently, the only allowed attribute to update is the default docker image version.
       required:
         - sourceId
         - dockerImageTag
       properties:
         sourceId:
-          $ref: "#/components/schemas/SourceId"
+          $ref: "#/components/schemas/SourceDefinitionId"
         dockerImageTag:
           type: string
-    SourceRead:
+    SourceDefinitionRead:
       type: object
       required:
         - sourceId
@@ -1019,7 +1019,7 @@ components:
         - dockerImageTag
       properties:
         sourceId:
-          $ref: "#/components/schemas/SourceId"
+          $ref: "#/components/schemas/SourceDefinitionId"
         name:
           type: string
         dockerRepository:
@@ -1029,31 +1029,31 @@ components:
         documentationUrl:
           type: string
           format: uri
-    SourceReadList:
+    SourceDefinitionReadList:
       type: object
       required:
-        - sources
+        - sourceDefinitions
       properties:
-        sources:
+        sourceDefinitions:
           type: array
           items:
-            $ref: "#/components/schemas/SourceRead"
+            $ref: "#/components/schemas/SourceDefinitionRead"
     # SOURCE SPECIFICATION
-    SourceSpecification:
-      description: The specification for what values are required to configure the source.
+    SourceDefinitionSpecification:
+      description: The specification for what values are required to configure the sourceDefinition.
       example: { user: { type: string } }
-    SourceSpecificationRead:
+    SourceDefinitionSpecificationRead:
       type: object
       required:
-        - sourceId
+        - sourceDefinitionId
         - connectionSpecification
       properties:
-        sourceId:
-          $ref: "#/components/schemas/SourceId"
+        sourceDefinitionId:
+          $ref: "#/components/schemas/SourceDefinitionId"
         documentationUrl:
           type: string
         connectionSpecification:
-          $ref: "#/components/schemas/SourceSpecification"
+          $ref: "#/components/schemas/SourceDefinitionSpecification"
     # SOURCE IMPLEMENTATION
     SourceImplementationId:
       type: string
@@ -1061,25 +1061,25 @@ components:
     SourceImplementationIdRequestBody:
       type: object
       required:
-        - sourceId
+        - sourceImplementationId
       properties:
         sourceImplementationId:
           $ref: "#/components/schemas/SourceImplementationId"
     SourceConfiguration:
-      description: The values required to configure the source. The schema for this must match the schema return by source_specifications/get for the source.
+      description: The values required to configure the source. The schema for this must match the schema return by source_definition_specifications/get for the source.
       example: { user: "charles" }
     SourceImplementationCreate:
       type: object
       required:
         - workspaceId
-        - sourceId
+        - sourceDefinitionId
         - connectionConfiguration
         - name
       properties:
         workspaceId:
           $ref: "#/components/schemas/WorkspaceId"
-        sourceId:
-          $ref: "#/components/schemas/SourceId"
+        sourceDefinitionId:
+          $ref: "#/components/schemas/SourceDefinitionId"
         connectionConfiguration:
           $ref: "#/components/schemas/SourceConfiguration"
         name:
@@ -1116,15 +1116,15 @@ components:
     SourceImplementationRead:
       type: object
       required:
-        - sourceId
+        - sourceDefinitionId
         - sourceImplementationId
         - workspaceId
         - connectionConfiguration
         - name
         - sourceName
       properties:
-        sourceId:
-          $ref: "#/components/schemas/SourceId"
+        sourceDefinitionId:
+          $ref: "#/components/schemas/SourceDefinitionId"
         sourceImplementationId:
           $ref: "#/components/schemas/SourceImplementationId"
         workspaceId:
@@ -1138,9 +1138,9 @@ components:
     SourceImplementationReadList:
       type: object
       required:
-        - sources
+        - sourceDefinitions
       properties:
-        sources:
+        sourceDefinitions:
           type: array
           items:
             $ref: "#/components/schemas/SourceImplementationRead"
