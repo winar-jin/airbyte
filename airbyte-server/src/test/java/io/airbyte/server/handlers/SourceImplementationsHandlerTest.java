@@ -36,13 +36,13 @@ import io.airbyte.api.model.ConnectionRead;
 import io.airbyte.api.model.ConnectionReadList;
 import io.airbyte.api.model.ConnectionStatus;
 import io.airbyte.api.model.ConnectionUpdate;
-import io.airbyte.api.model.SourceIdRequestBody;
+import io.airbyte.api.model.SourceDefinitionIdRequestBody;
+import io.airbyte.api.model.SourceDefinitionSpecificationRead;
 import io.airbyte.api.model.SourceImplementationCreate;
 import io.airbyte.api.model.SourceImplementationIdRequestBody;
 import io.airbyte.api.model.SourceImplementationRead;
 import io.airbyte.api.model.SourceImplementationReadList;
 import io.airbyte.api.model.SourceImplementationUpdate;
-import io.airbyte.api.model.SourceSpecificationRead;
 import io.airbyte.api.model.WorkspaceIdRequestBody;
 import io.airbyte.commons.json.JsonSchemaValidator;
 import io.airbyte.commons.json.JsonValidationException;
@@ -68,8 +68,8 @@ class SourceImplementationsHandlerTest {
 
   private ConfigRepository configRepository;
   private StandardSource standardSource;
-  private SourceSpecificationRead sourceSpecificationRead;
-  private SourceIdRequestBody sourceIdRequestBody;
+  private SourceDefinitionSpecificationRead sourceDefinitionSpecificationRead;
+  private SourceDefinitionIdRequestBody sourceDefinitionIdRequestBody;
   private SourceConnectionImplementation sourceConnectionImplementation;
   private SourceImplementationsHandler sourceImplementationsHandler;
   private JsonSchemaValidator validator;
@@ -87,10 +87,10 @@ class SourceImplementationsHandlerTest {
     uuidGenerator = mock(Supplier.class);
 
     standardSource = SourceHelpers.generateSource();
-    sourceIdRequestBody = new SourceIdRequestBody().sourceId(standardSource.getSourceId());
+    sourceDefinitionIdRequestBody = new SourceDefinitionIdRequestBody().sourceDefinitionId(standardSource.getSourceId());
     ConnectorSpecification connectorSpecification = ConnectorSpecificationHelpers.generateConnectorSpecification();
-    sourceSpecificationRead = new SourceSpecificationRead()
-        .sourceId(standardSource.getSourceId())
+    sourceDefinitionSpecificationRead = new SourceDefinitionSpecificationRead()
+        .sourceDefinitionId(standardSource.getSourceId())
         .connectionSpecification(connectorSpecification.getConnectionSpecification())
         .documentationUrl(connectorSpecification.getDocumentationUrl().toString());
 
@@ -109,15 +109,15 @@ class SourceImplementationsHandlerTest {
     when(configRepository.getSourceConnectionImplementation(sourceConnectionImplementation.getSourceImplementationId()))
         .thenReturn(sourceConnectionImplementation);
 
-    when(schedulerHandler.getSourceSpecification(sourceIdRequestBody)).thenReturn(sourceSpecificationRead);
+    when(schedulerHandler.getSourceSpecification(sourceDefinitionIdRequestBody)).thenReturn(sourceDefinitionSpecificationRead);
 
-    when(configRepository.getStandardSource(sourceSpecificationRead.getSourceId()))
+    when(configRepository.getStandardSource(sourceDefinitionSpecificationRead.getSourceDefinitionId()))
         .thenReturn(standardSource);
 
     final SourceImplementationCreate sourceImplementationCreate = new SourceImplementationCreate()
         .name(sourceConnectionImplementation.getName())
         .workspaceId(sourceConnectionImplementation.getWorkspaceId())
-        .sourceId(standardSource.getSourceId())
+        .sourceDefinitionId(standardSource.getSourceId())
         .connectionConfiguration(SourceImplementationHelpers.getTestImplementationJson());
 
     final SourceImplementationRead actualSourceImplementationRead =
@@ -131,7 +131,7 @@ class SourceImplementationsHandlerTest {
 
     verify(validator)
         .validate(
-            sourceSpecificationRead.getConnectionSpecification(),
+            sourceDefinitionSpecificationRead.getConnectionSpecification(),
             sourceConnectionImplementation.getConfiguration());
 
     verify(configRepository).writeSourceConnectionImplementation(sourceConnectionImplementation);
@@ -150,9 +150,9 @@ class SourceImplementationsHandlerTest {
         .thenReturn(sourceConnectionImplementation)
         .thenReturn(expectedSourceConnectionImplementation);
 
-    when(schedulerHandler.getSourceSpecification(sourceIdRequestBody)).thenReturn(sourceSpecificationRead);
+    when(schedulerHandler.getSourceSpecification(sourceDefinitionIdRequestBody)).thenReturn(sourceDefinitionSpecificationRead);
 
-    when(configRepository.getStandardSource(sourceSpecificationRead.getSourceId()))
+    when(configRepository.getStandardSource(sourceDefinitionSpecificationRead.getSourceDefinitionId()))
         .thenReturn(standardSource);
 
     final SourceImplementationUpdate sourceImplementationUpdate = new SourceImplementationUpdate()
@@ -177,10 +177,10 @@ class SourceImplementationsHandlerTest {
     when(configRepository.getSourceConnectionImplementation(sourceConnectionImplementation.getSourceImplementationId()))
         .thenReturn(sourceConnectionImplementation);
 
-    when(schedulerHandler.getSourceSpecification(sourceIdRequestBody))
-        .thenReturn(sourceSpecificationRead);
+    when(schedulerHandler.getSourceSpecification(sourceDefinitionIdRequestBody))
+        .thenReturn(sourceDefinitionSpecificationRead);
 
-    when(configRepository.getStandardSource(sourceSpecificationRead.getSourceId()))
+    when(configRepository.getStandardSource(sourceDefinitionSpecificationRead.getSourceDefinitionId()))
         .thenReturn(standardSource);
 
     SourceImplementationRead expectedSourceImplementationRead =
@@ -202,8 +202,8 @@ class SourceImplementationsHandlerTest {
         .thenReturn(sourceConnectionImplementation);
     when(configRepository.listSourceConnectionImplementations())
         .thenReturn(Lists.newArrayList(sourceConnectionImplementation));
-    when(schedulerHandler.getSourceSpecification(sourceIdRequestBody)).thenReturn(sourceSpecificationRead);
-    when(configRepository.getStandardSource(sourceSpecificationRead.getSourceId()))
+    when(schedulerHandler.getSourceSpecification(sourceDefinitionIdRequestBody)).thenReturn(sourceDefinitionSpecificationRead);
+    when(configRepository.getStandardSource(sourceDefinitionSpecificationRead.getSourceDefinitionId()))
         .thenReturn(standardSource);
 
     SourceImplementationRead expectedSourceImplementationRead =
@@ -230,9 +230,9 @@ class SourceImplementationsHandlerTest {
         .thenReturn(sourceConnectionImplementation)
         .thenReturn(expectedSourceConnectionImplementation);
 
-    when(schedulerHandler.getSourceSpecification(sourceIdRequestBody)).thenReturn(sourceSpecificationRead);
+    when(schedulerHandler.getSourceSpecification(sourceDefinitionIdRequestBody)).thenReturn(sourceDefinitionSpecificationRead);
 
-    when(configRepository.getStandardSource(sourceSpecificationRead.getSourceId()))
+    when(configRepository.getStandardSource(sourceDefinitionSpecificationRead.getSourceDefinitionId()))
         .thenReturn(standardSource);
 
     final SourceImplementationIdRequestBody sourceImplementationIdRequestBody = new SourceImplementationIdRequestBody()

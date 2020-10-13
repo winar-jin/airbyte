@@ -29,13 +29,13 @@ import com.google.common.collect.Lists;
 import io.airbyte.api.model.ConnectionRead;
 import io.airbyte.api.model.ConnectionStatus;
 import io.airbyte.api.model.ConnectionUpdate;
-import io.airbyte.api.model.SourceIdRequestBody;
+import io.airbyte.api.model.SourceDefinitionIdRequestBody;
+import io.airbyte.api.model.SourceDefinitionSpecificationRead;
 import io.airbyte.api.model.SourceImplementationCreate;
 import io.airbyte.api.model.SourceImplementationIdRequestBody;
 import io.airbyte.api.model.SourceImplementationRead;
 import io.airbyte.api.model.SourceImplementationReadList;
 import io.airbyte.api.model.SourceImplementationUpdate;
-import io.airbyte.api.model.SourceSpecificationRead;
 import io.airbyte.api.model.WorkspaceIdRequestBody;
 import io.airbyte.commons.json.JsonSchemaValidator;
 import io.airbyte.commons.json.JsonValidationException;
@@ -79,14 +79,14 @@ public class SourceImplementationsHandler {
       throws ConfigNotFoundException, IOException, JsonValidationException {
     // validate configuration
     validateSourceImplementation(
-        sourceImplementationCreate.getSourceId(),
+        sourceImplementationCreate.getSourceDefinitionId(),
         sourceImplementationCreate.getConnectionConfiguration());
 
     // persist
     final UUID sourceImplementationId = uuidGenerator.get();
     persistSourceConnectionImplementation(
         sourceImplementationCreate.getName() != null ? sourceImplementationCreate.getName() : "default",
-        sourceImplementationCreate.getSourceId(),
+        sourceImplementationCreate.getSourceDefinitionId(),
         sourceImplementationCreate.getWorkspaceId(),
         sourceImplementationId,
         false,
@@ -169,7 +169,7 @@ public class SourceImplementationsHandler {
     // persist
     persistSourceConnectionImplementation(
         sourceImplementation.getName(),
-        sourceImplementation.getSourceId(),
+        sourceImplementation.getSourceDefinitionId(),
         sourceImplementation.getWorkspaceId(),
         sourceImplementation.getSourceImplementationId(),
         true,
@@ -188,9 +188,9 @@ public class SourceImplementationsHandler {
 
   private void validateSourceImplementation(UUID sourceId, JsonNode implementationJson)
       throws JsonValidationException, IOException, ConfigNotFoundException {
-    SourceSpecificationRead scs = schedulerHandler.getSourceSpecification(new SourceIdRequestBody().sourceId(sourceId));
+    SourceDefinitionSpecificationRead sds = schedulerHandler.getSourceSpecification(new SourceDefinitionIdRequestBody().sourceDefinitionId(sourceId));
 
-    validator.validate(scs.getConnectionSpecification(), implementationJson);
+    validator.validate(sds.getConnectionSpecification(), implementationJson);
   }
 
   private void persistSourceConnectionImplementation(final String name,
@@ -214,11 +214,11 @@ public class SourceImplementationsHandler {
   private SourceImplementationRead toSourceImplementationRead(final SourceConnectionImplementation sourceConnectionImplementation,
                                                               final StandardSource standardSource) {
     return new SourceImplementationRead()
-        .sourceId(standardSource.getSourceId())
+        .sourceDefinitionId(standardSource.getSourceId())
         .sourceName(standardSource.getName())
         .sourceImplementationId(sourceConnectionImplementation.getSourceImplementationId())
         .workspaceId(sourceConnectionImplementation.getWorkspaceId())
-        .sourceId(sourceConnectionImplementation.getSourceId())
+        .sourceDefinitionId(sourceConnectionImplementation.getSourceId())
         .connectionConfiguration(sourceConnectionImplementation.getConfiguration())
         .name(sourceConnectionImplementation.getName());
   }

@@ -441,7 +441,7 @@ public class AcceptanceTests {
   }
 
   private UUID getPostgresSourceId() throws ApiException {
-    return apiClient.getSourceApi().listSources().getSources()
+    return apiClient.getSourceDefinitionApi().listSources().getSources()
         .stream()
         .filter(sourceRead -> sourceRead.getName().toLowerCase().equals("postgres"))
         .findFirst()

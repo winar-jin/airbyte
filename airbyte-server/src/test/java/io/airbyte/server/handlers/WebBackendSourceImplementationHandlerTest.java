@@ -75,7 +75,7 @@ public class WebBackendSourceImplementationHandlerTest {
     SourceImplementationCreate sourceImplementationCreate = new SourceImplementationCreate();
     sourceImplementationCreate.setName(sourceImplementationRead.getName());
     sourceImplementationCreate.setConnectionConfiguration(sourceImplementationRead.getConnectionConfiguration());
-    sourceImplementationCreate.setSourceId(sourceImplementationRead.getSourceId());
+    sourceImplementationCreate.setSourceDefinitionId(sourceImplementationRead.getSourceDefinitionId());
     sourceImplementationCreate.setWorkspaceId(sourceImplementationRead.getWorkspaceId());
 
     when(sourceImplementationsHandler.createSourceImplementation(sourceImplementationCreate)).thenReturn(sourceImplementationRead);

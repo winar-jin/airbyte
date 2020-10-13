@@ -1003,22 +1003,22 @@ components:
       type: object
       description: Update the SourceDefinition. Currently, the only allowed attribute to update is the default docker image version.
       required:
-        - sourceId
+        - sourceDefinitionId
         - dockerImageTag
       properties:
-        sourceId:
+        sourceDefinitionId:
           $ref: "#/components/schemas/SourceDefinitionId"
         dockerImageTag:
           type: string
     SourceDefinitionRead:
       type: object
       required:
-        - sourceId
+        - sourceDefinitionId
         - name
         - dockerRepository
         - dockerImageTag
       properties:
-        sourceId:
+        sourceDefinitionId:
           $ref: "#/components/schemas/SourceDefinitionId"
         name:
           type: string
@@ -1041,6 +1041,7 @@ components:
     # SOURCE SPECIFICATION
     SourceDefinitionSpecification:
       description: The specification for what values are required to configure the sourceDefinition.
+      type: object
       example: { user: { type: string } }
     SourceDefinitionSpecificationRead:
       type: object
@@ -1138,9 +1139,9 @@ components:
     SourceImplementationReadList:
       type: object
       required:
-        - sourceDefinitions
+        - sources
       properties:
-        sourceDefinitions:
+        sources:
           type: array
           items:
             $ref: "#/components/schemas/SourceImplementationRead"

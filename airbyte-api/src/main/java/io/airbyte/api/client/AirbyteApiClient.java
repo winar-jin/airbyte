@@ -45,7 +45,7 @@ public class AirbyteApiClient {
   private final DestinationImplementationApi destinationImplementationApi;
   private final DestinationSpecificationApi destinationSpecificationApi;
   private final JobsApi jobsApi;
-  private final SourceApi sourceApi;
+  private final SourceDefinitionApi sourceDefinitionApi;
   private final SourceImplementationApi sourceImplementationApi;
   private final SourceSpecificationApi sourceSpecificationApi;
   private final WorkspaceApi workspaceApi;
@@ -56,7 +56,7 @@ public class AirbyteApiClient {
     destinationImplementationApi = new DestinationImplementationApi(apiClient);
     destinationSpecificationApi = new DestinationSpecificationApi(apiClient);
     jobsApi = new JobsApi(apiClient);
-    sourceApi = new SourceApi(apiClient);
+    sourceDefinitionApi = new SourceDefinitionApi(apiClient);
     sourceImplementationApi = new SourceImplementationApi(apiClient);
     sourceSpecificationApi = new SourceSpecificationApi(apiClient);
     workspaceApi = new WorkspaceApi(apiClient);
@@ -82,8 +82,8 @@ public class AirbyteApiClient {
     return jobsApi;
   }
 
-  public SourceApi getSourceApi() {
-    return sourceApi;
+  public SourceDefinitionApi getSourceDefinitionApi() {
+    return sourceDefinitionApi;
   }
 
   public SourceImplementationApi getSourceImplementationApi() {

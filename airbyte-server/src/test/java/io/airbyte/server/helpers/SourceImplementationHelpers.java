@@ -62,9 +62,9 @@ public class SourceImplementationHelpers {
                                                                      StandardSource standardSource) {
 
     return new SourceImplementationRead()
-        .sourceId(standardSource.getSourceId())
+        .sourceDefinitionId(standardSource.getSourceId())
         .workspaceId(sourceImplementation.getWorkspaceId())
-        .sourceId(sourceImplementation.getSourceId())
+        .sourceDefinitionId(sourceImplementation.getSourceId())
         .sourceImplementationId(sourceImplementation.getSourceImplementationId())
         .connectionConfiguration(sourceImplementation.getConfiguration())
         .name(sourceImplementation.getName())

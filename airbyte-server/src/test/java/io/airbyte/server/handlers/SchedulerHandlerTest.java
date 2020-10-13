@@ -35,7 +35,7 @@ import io.airbyte.api.model.CheckConnectionRead;
 import io.airbyte.api.model.ConnectionIdRequestBody;
 import io.airbyte.api.model.DestinationIdRequestBody;
 import io.airbyte.api.model.DestinationImplementationIdRequestBody;
-import io.airbyte.api.model.SourceIdRequestBody;
+import io.airbyte.api.model.SourceDefinitionIdRequestBody;
 import io.airbyte.api.model.SourceImplementationIdRequestBody;
 import io.airbyte.commons.docker.DockerUtils;
 import io.airbyte.commons.enums.Enums;
@@ -121,13 +121,13 @@ class SchedulerHandlerTest {
 
   @Test
   void testGetSourceSpec() throws JsonValidationException, IOException, ConfigNotFoundException, URISyntaxException {
-    SourceIdRequestBody sourceIdRequestBody = new SourceIdRequestBody().sourceId(UUID.randomUUID());
-    when(configRepository.getStandardSource(sourceIdRequestBody.getSourceId()))
+    SourceDefinitionIdRequestBody sourceDefinitionIdRequestBody = new SourceDefinitionIdRequestBody().sourceDefinitionId(UUID.randomUUID());
+    when(configRepository.getStandardSource(sourceDefinitionIdRequestBody.getSourceDefinitionId()))
         .thenReturn(new StandardSource()
             .withName("name")
             .withDockerRepository(SOURCE_DOCKER_REPO)
             .withDockerImageTag(SOURCE_DOCKER_TAG)
-            .withSourceId(sourceIdRequestBody.getSourceId()));
+            .withSourceId(sourceDefinitionIdRequestBody.getSourceDefinitionId()));
     when(schedulerPersistence.createGetSpecJob(SOURCE_DOCKER_IMAGE)).thenReturn(JOB_ID);
     when(schedulerPersistence.getJob(JOB_ID)).thenReturn(inProgressJob).thenReturn(completedJob);
 
@@ -141,9 +141,9 @@ class SchedulerHandlerTest {
     when(jobOutput.getGetSpec()).thenReturn(specOutput);
     when(completedJob.getOutput()).thenReturn(Optional.of(jobOutput));
 
-    schedulerHandler.getSourceSpecification(sourceIdRequestBody);
+    schedulerHandler.getSourceSpecification(sourceDefinitionIdRequestBody);
 
-    verify(configRepository).getStandardSource(sourceIdRequestBody.getSourceId());
+    verify(configRepository).getStandardSource(sourceDefinitionIdRequestBody.getSourceDefinitionId());
     verify(schedulerPersistence).createGetSpecJob(SOURCE_DOCKER_IMAGE);
     verify(schedulerPersistence, atLeast(2)).getJob(JOB_ID);
   }

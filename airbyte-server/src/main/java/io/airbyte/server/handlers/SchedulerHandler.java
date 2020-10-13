@@ -32,10 +32,10 @@ import io.airbyte.api.model.ConnectionSyncRead;
 import io.airbyte.api.model.DestinationIdRequestBody;
 import io.airbyte.api.model.DestinationImplementationIdRequestBody;
 import io.airbyte.api.model.DestinationSpecificationRead;
-import io.airbyte.api.model.SourceIdRequestBody;
+import io.airbyte.api.model.SourceDefinitionIdRequestBody;
+import io.airbyte.api.model.SourceDefinitionSpecificationRead;
 import io.airbyte.api.model.SourceImplementationDiscoverSchemaRead;
 import io.airbyte.api.model.SourceImplementationIdRequestBody;
-import io.airbyte.api.model.SourceSpecificationRead;
 import io.airbyte.commons.docker.DockerUtils;
 import io.airbyte.commons.enums.Enums;
 import io.airbyte.commons.json.JsonValidationException;
@@ -148,9 +148,9 @@ public class SchedulerHandler {
     return new SourceImplementationDiscoverSchemaRead().schema(SchemaConverter.toApiSchema(output.getSchema()));
   }
 
-  public SourceSpecificationRead getSourceSpecification(SourceIdRequestBody sourceIdRequestBody)
+  public SourceDefinitionSpecificationRead getSourceSpecification(SourceDefinitionIdRequestBody sourceDefinitionIdRequestBody)
       throws ConfigNotFoundException, IOException, JsonValidationException {
-    UUID sourceId = sourceIdRequestBody.getSourceId();
+    UUID sourceId = sourceDefinitionIdRequestBody.getSourceDefinitionId();
     StandardSource source = configRepository.getStandardSource(sourceId);
     final String imageName = DockerUtils.getTaggedImageName(source.getDockerRepository(), source.getDockerImageTag());
     final ConnectorSpecification spec = getConnectorSpecification(imageName);
@@ -161,10 +161,10 @@ public class SchedulerHandler {
         .put("image_name", imageName)
         .build());
 
-    return new SourceSpecificationRead()
+    return new SourceDefinitionSpecificationRead()
         .connectionSpecification(spec.getConnectionSpecification())
         .documentationUrl(spec.getDocumentationUrl().toString())
-        .sourceId(sourceId);
+        .sourceDefinitionId(sourceId);
   }
 
   public ConnectorSpecification getConnectorSpecification(String imageName) throws IOException {

@@ -24,11 +24,11 @@
 
 package io.airbyte.server.handlers;
 
-import io.airbyte.api.model.SourceCreate;
-import io.airbyte.api.model.SourceIdRequestBody;
-import io.airbyte.api.model.SourceRead;
-import io.airbyte.api.model.SourceReadList;
-import io.airbyte.api.model.SourceUpdate;
+import io.airbyte.api.model.SourceDefinitionCreate;
+import io.airbyte.api.model.SourceDefinitionIdRequestBody;
+import io.airbyte.api.model.SourceDefinitionRead;
+import io.airbyte.api.model.SourceDefinitionReadList;
+import io.airbyte.api.model.SourceDefinitionUpdate;
 import io.airbyte.commons.json.JsonValidationException;
 import io.airbyte.config.StandardSource;
 import io.airbyte.config.persistence.ConfigNotFoundException;
@@ -62,41 +62,43 @@ public class SourcesHandler {
     this.imageValidator = imageValidator;
   }
 
-  public SourceReadList listSources() throws ConfigNotFoundException, IOException, JsonValidationException {
-    final List<SourceRead> reads = configRepository.listStandardSources()
+  public SourceDefinitionReadList listSources() throws ConfigNotFoundException, IOException, JsonValidationException {
+    final List<SourceDefinitionRead> reads = configRepository.listStandardSources()
         .stream()
         .map(SourcesHandler::buildSourceRead)
         .collect(Collectors.toList());
-    return new SourceReadList().sources(reads);
+    return new SourceDefinitionReadList().sourceDefinitions(reads);
   }
 
-  public SourceRead getSource(SourceIdRequestBody sourceIdRequestBody) throws ConfigNotFoundException, IOException, JsonValidationException {
-    return buildSourceRead(configRepository.getStandardSource(sourceIdRequestBody.getSourceId()));
+  public SourceDefinitionRead getSource(SourceDefinitionIdRequestBody sourceDefinitionIdRequestBody)
+      throws ConfigNotFoundException, IOException, JsonValidationException {
+    return buildSourceRead(configRepository.getStandardSource(sourceDefinitionIdRequestBody.getSourceDefinitionId()));
   }
 
-  public SourceRead createSource(SourceCreate sourceCreate) throws JsonValidationException, IOException {
-    imageValidator.assertValidIntegrationImage(sourceCreate.getDockerRepository(), sourceCreate.getDockerImageTag());
+  public SourceDefinitionRead createSource(SourceDefinitionCreate sourceDefinitionCreate) throws JsonValidationException, IOException {
+    imageValidator.assertValidIntegrationImage(sourceDefinitionCreate.getDockerRepository(), sourceDefinitionCreate.getDockerImageTag());
 
     UUID id = uuidSupplier.get();
     StandardSource source = new StandardSource()
         .withSourceId(id)
-        .withDockerRepository(sourceCreate.getDockerRepository())
-        .withDockerImageTag(sourceCreate.getDockerImageTag())
-        .withDocumentationUrl(sourceCreate.getDocumentationUrl().toString())
-        .withName(sourceCreate.getName());
+        .withDockerRepository(sourceDefinitionCreate.getDockerRepository())
+        .withDockerImageTag(sourceDefinitionCreate.getDockerImageTag())
+        .withDocumentationUrl(sourceDefinitionCreate.getDocumentationUrl().toString())
+        .withName(sourceDefinitionCreate.getName());
 
     configRepository.writeStandardSource(source);
 
     return buildSourceRead(source);
   }
 
-  public SourceRead updateSource(SourceUpdate sourceUpdate) throws ConfigNotFoundException, IOException, JsonValidationException {
-    StandardSource currentSource = configRepository.getStandardSource(sourceUpdate.getSourceId());
-    imageValidator.assertValidIntegrationImage(currentSource.getDockerRepository(), sourceUpdate.getDockerImageTag());
+  public SourceDefinitionRead updateSource(SourceDefinitionUpdate sourceDefinitionUpdate)
+      throws ConfigNotFoundException, IOException, JsonValidationException {
+    StandardSource currentSource = configRepository.getStandardSource(sourceDefinitionUpdate.getSourceDefinitionId());
+    imageValidator.assertValidIntegrationImage(currentSource.getDockerRepository(), sourceDefinitionUpdate.getDockerImageTag());
 
     StandardSource newSource = new StandardSource()
         .withSourceId(currentSource.getSourceId())
-        .withDockerImageTag(sourceUpdate.getDockerImageTag())
+        .withDockerImageTag(sourceDefinitionUpdate.getDockerImageTag())
         .withDockerRepository(currentSource.getDockerRepository())
         .withDocumentationUrl(currentSource.getDocumentationUrl())
         .withName(currentSource.getName());
@@ -105,10 +107,10 @@ public class SourcesHandler {
     return buildSourceRead(newSource);
   }
 
-  private static SourceRead buildSourceRead(StandardSource standardSource) {
+  private static SourceDefinitionRead buildSourceRead(StandardSource standardSource) {
     try {
-      return new SourceRead()
-          .sourceId(standardSource.getSourceId())
+      return new SourceDefinitionRead()
+          .sourceDefinitionId(standardSource.getSourceId())
           .name(standardSource.getName())
           .dockerRepository(standardSource.getDockerRepository())
           .dockerImageTag(standardSource.getDockerImageTag())

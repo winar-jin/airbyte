@@ -48,8 +48,12 @@ import io.airbyte.api.model.JobInfoRead;
 import io.airbyte.api.model.JobListRequestBody;
 import io.airbyte.api.model.JobReadList;
 import io.airbyte.api.model.SlugRequestBody;
-import io.airbyte.api.model.SourceCreate;
-import io.airbyte.api.model.SourceIdRequestBody;
+import io.airbyte.api.model.SourceDefinitionCreate;
+import io.airbyte.api.model.SourceDefinitionIdRequestBody;
+import io.airbyte.api.model.SourceDefinitionRead;
+import io.airbyte.api.model.SourceDefinitionReadList;
+import io.airbyte.api.model.SourceDefinitionSpecificationRead;
+import io.airbyte.api.model.SourceDefinitionUpdate;
 import io.airbyte.api.model.SourceImplementationCreate;
 import io.airbyte.api.model.SourceImplementationDiscoverSchemaRead;
 import io.airbyte.api.model.SourceImplementationIdRequestBody;
@@ -57,10 +61,6 @@ import io.airbyte.api.model.SourceImplementationRead;
 import io.airbyte.api.model.SourceImplementationReadList;
 import io.airbyte.api.model.SourceImplementationRecreate;
 import io.airbyte.api.model.SourceImplementationUpdate;
-import io.airbyte.api.model.SourceRead;
-import io.airbyte.api.model.SourceReadList;
-import io.airbyte.api.model.SourceSpecificationRead;
-import io.airbyte.api.model.SourceUpdate;
 import io.airbyte.api.model.WbConnectionRead;
 import io.airbyte.api.model.WbConnectionReadList;
 import io.airbyte.api.model.WorkspaceIdRequestBody;
@@ -154,30 +154,30 @@ public class ConfigurationApi implements io.airbyte.api.V1Api {
   // SOURCE
 
   @Override
-  public SourceReadList listSources() {
+  public SourceDefinitionReadList listSourceDefinitions() {
     return execute(sourcesHandler::listSources);
   }
 
   @Override
-  public SourceRead getSource(@Valid SourceIdRequestBody sourceIdRequestBody) {
-    return execute(() -> sourcesHandler.getSource(sourceIdRequestBody));
+  public SourceDefinitionRead getSourceDefinition(@Valid SourceDefinitionIdRequestBody sourceDefinitionIdRequestBody) {
+    return execute(() -> sourcesHandler.getSource(sourceDefinitionIdRequestBody));
   }
 
   @Override
-  public SourceRead createSource(@Valid SourceCreate sourceCreate) {
-    return execute(() -> sourcesHandler.createSource(sourceCreate));
+  public SourceDefinitionRead createSourceDefinition(@Valid SourceDefinitionCreate sourceDefinitionCreate) {
+    return execute(() -> sourcesHandler.createSource(sourceDefinitionCreate));
   }
 
   @Override
-  public SourceRead updateSource(@Valid SourceUpdate sourceUpdate) {
-    return execute(() -> sourcesHandler.updateSource(sourceUpdate));
+  public SourceDefinitionRead updateSourceDefinition(@Valid SourceDefinitionUpdate sourceDefinitionUpdate) {
+    return execute(() -> sourcesHandler.updateSource(sourceDefinitionUpdate));
   }
 
   // SOURCE SPECIFICATION
 
   @Override
-  public SourceSpecificationRead getSourceSpecification(@Valid SourceIdRequestBody sourceIdRequestBody) {
-    return execute(() -> schedulerHandler.getSourceSpecification(sourceIdRequestBody));
+  public SourceDefinitionSpecificationRead getSourceDefinitionSpecification(@Valid SourceDefinitionIdRequestBody sourceDefinitionIdRequestBody) {
+    return execute(() -> schedulerHandler.getSourceSpecification(sourceDefinitionIdRequestBody));
   }
   // SOURCE IMPLEMENTATION
 
