@@ -40,10 +40,10 @@ tags:
     description: SourceDefinition specification related resources.
   - name: source_implementation
     description: Source implementation related resources.
-  - name: destination
-    description: Destination related resources.
-  - name: destination_specification
-    description: Destination specification related resources.
+  - name: destination_definition
+    description: DestinationDefinition related resources.
+  - name: destination_definition_specification
+    description: DestinationDefinitionSpecification related resources.
   - name: destination_implementation
     description: Destination implementation related resources.
   - name: connection
@@ -379,17 +379,17 @@ paths:
           description: Source Implementation not found
         "422":
           $ref: "#/components/responses/InvalidInput"
-  /v1/destinations/update:
+  /v1/destination_definitions/update:
     post:
       tags:
-        - destination
-      summary: Update destination
-      operationId: updateDestination
+        - destination_definition
+      summary: Update destinationDefinition
+      operationId: updateDestinationDefinition
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/DestinationUpdate"
+              $ref: "#/components/schemas/DestinationDefinitionUpdate"
         required: true
       responses:
         "200":
@@ -397,35 +397,35 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DestinationRead"
+                $ref: "#/components/schemas/DestinationDefinitionRead"
         "404":
-          description: Destination not found
+          description: DestinationDefinition not found
         "422":
           $ref: "#/components/responses/InvalidInput"
-  /v1/destinations/list:
+  /v1/destination_definitions/list:
     post:
       tags:
-        - destination
-      summary: List all of the destinations that Airbyte supports
-      operationId: listDestinations
+        - destination_definition
+      summary: List all of the destinationDefinitions that Airbyte supports
+      operationId: listDestinationDefinitions
       responses:
         "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DestinationReadList"
-  /v1/destinations/get:
+                $ref: "#/components/schemas/DestinationDefinitionReadList"
+  /v1/destination_definitions/get:
     post:
       tags:
-        - destination
-      summary: Get destination
-      operationId: getDestination
+        - destination_definition
+      summary: Get destinationDefinition
+      operationId: getDestinationDefinition
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/DestinationIdRequestBody"
+              $ref: "#/components/schemas/DestinationDefinitionIdRequestBody"
         required: true
       responses:
         "200":
@@ -433,22 +433,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DestinationRead"
+                $ref: "#/components/schemas/DestinationDefinitionRead"
         "404":
-          description: Destination not found
+          description: DestinationDefinition not found
         "422":
           $ref: "#/components/responses/InvalidInput"
-  /v1/destination_specifications/get:
+  /v1/destination_definition_specifications/get:
     post:
       tags:
-        - destination_specification
-      summary: Get specification for a destination
-      operationId: getDestinationSpecification
+        - destination_definition_specification
+      summary: Get specification for a destinationDefinition
+      operationId: getDestinationDefinitionSpecification
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/DestinationIdRequestBody"
+              $ref: "#/components/schemas/DestinationDefinitionIdRequestBody"
         required: true
       responses:
         "200":
@@ -456,11 +456,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DestinationSpecificationRead"
+                $ref: "#/components/schemas/DestinationDefinitionSpecificationRead"
         "404":
-          description: Destination not found
+          description: DestinationDefinition not found
         "422":
           $ref: "#/components/responses/InvalidInput"
+  # DESTINATIONS
   /v1/destination_implementations/create:
     post:
       tags:
@@ -1152,38 +1153,38 @@ components:
       properties:
         schema:
           $ref: "#/components/schemas/SourceSchema"
-    # DESTINATION
-    DestinationId:
+    # DESTINATION DEFINITION
+    DestinationDefinitionId:
       type: string
       format: uuid
-    DestinationIdRequestBody:
+    DestinationDefinitionIdRequestBody:
       type: object
       required:
-        - destinationId
+        - destinationDefinitionId
       properties:
-        destinationId:
-          $ref: "#/components/schemas/DestinationId"
-    DestinationUpdate:
+        destinationDefinitionId:
+          $ref: "#/components/schemas/DestinationDefinitionId"
+    DestinationDefinitionUpdate:
       type: object
       required:
-        - destinationId
-        - destinationImageVersion
+        - destinationDefinitionId
+        - dockerImageag
       properties:
-        destinationId:
-          $ref: "#/components/schemas/DestinationId"
+        destinationDefinitionId:
+          $ref: "#/components/schemas/DestinationDefinitionId"
         dockerImageTag:
           type: string
-    DestinationRead:
+    DestinationDefinitionRead:
       type: object
       required:
-        - destinationId
+        - destinationDefinitionId
         - name
         - dockerRepository
         - dockerImageTag
         - documentationUrl
       properties:
-        destinationId:
-          $ref: "#/components/schemas/DestinationId"
+        destinationDefinitionId:
+          $ref: "#/components/schemas/DestinationDefinitionId"
         name:
           type: string
         dockerRepository:
@@ -1193,31 +1194,31 @@ components:
         documentationUrl:
           type: string
           format: uri
-    DestinationReadList:
+    DestinationDefinitionReadList:
       type: object
       required:
-        - destinations
+        - destinationDefinitions
       properties:
-        destinations:
+        destinationDefinitions:
           type: array
           items:
-            $ref: "#/components/schemas/DestinationRead"
-    # DESTINATION SPECIFICATION
-    DestinationSpecification:
-      description: The specification for what values are required to configure the destination.
+            $ref: "#/components/schemas/DestinationDefinitionRead"
+    # DESTINATION DEFINITION SPECIFICATION
+    DestinationDefinitionSpecification:
+      description: The specification for what values are required to configure the destinationDefinition.
       example: { user: { type: string } }
-    DestinationSpecificationRead:
+    DestinationDefinitionSpecificationRead:
       type: object
       required:
-        - destinationId
+        - destinationDefinitionId
         - connectionSpecification
       properties:
-        destinationId:
-          $ref: "#/components/schemas/DestinationId"
+        destinationDefinitionId:
+          $ref: "#/components/schemas/DestinationDefinitionId"
         documentationUrl:
           type: string
         connectionSpecification:
-          $ref: "#/components/schemas/DestinationSpecification"
+          $ref: "#/components/schemas/DestinationDefinitionSpecification"
     # DESTINATION IMPLEMENTATION
     DestinationImplementationId:
       type: string
@@ -1230,19 +1231,19 @@ components:
         destinationImplementationId:
           $ref: "#/components/schemas/SourceImplementationId"
     DestinationConfiguration:
-      description: The values required to configure the destination. The schema for this must match the schema return by destination_specifications/get for the destination.
+      description: The values required to configure the destination. The schema for this must match the schema return by destination_definition_specifications/get for the destinationDefinition.
       example: { user: "charles" }
     DestinationImplementationCreate:
       type: object
       required:
         - workspaceId
-        - destinationId
+        - destinationDefinitionId
         - connectionConfiguration
       properties:
         workspaceId:
           $ref: "#/components/schemas/WorkspaceId"
-        destinationId:
-          $ref: "#/components/schemas/DestinationId"
+        destinationDefinitionId:
+          $ref: "#/components/schemas/DestinationDefinitionId"
         connectionConfiguration:
           $ref: "#/components/schemas/DestinationConfiguration"
         name:
@@ -1279,15 +1280,15 @@ components:
     DestinationImplementationRead:
       type: object
       required:
-        - destinationId
+        - destinationDefinitionId
         - destinationImplementationId
         - workspaceId
         - connectionConfiguration
         - name
         - destinationName
       properties:
-        destinationId:
-          $ref: "#/components/schemas/DestinationId"
+        destinationDefinitionId:
+          $ref: "#/components/schemas/DestinationDefinitionId"
         destinationImplementationId:
           $ref: "#/components/schemas/DestinationImplementationId"
         workspaceId:

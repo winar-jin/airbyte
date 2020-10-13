@@ -76,7 +76,7 @@ public class WebBackendDestinationImplementationHandlerTest {
     DestinationImplementationCreate destinationImplementationCreate = new DestinationImplementationCreate();
     destinationImplementationCreate.setName(destinationImplementationRead.getName());
     destinationImplementationCreate.setConnectionConfiguration(destinationImplementationRead.getConnectionConfiguration());
-    destinationImplementationCreate.setDestinationId(destinationImplementationRead.getDestinationId());
+    destinationImplementationCreate.setDestinationDefinitionId(destinationImplementationRead.getDestinationDefinitionId());
     destinationImplementationCreate.setWorkspaceId(destinationImplementationRead.getWorkspaceId());
 
     when(destinationImplementationsHandler.createDestinationImplementation(destinationImplementationCreate))
@@ -102,7 +102,7 @@ public class WebBackendDestinationImplementationHandlerTest {
     DestinationImplementationCreate destinationImplementationCreate = new DestinationImplementationCreate();
     destinationImplementationCreate.setName(destinationImplementationRead.getName());
     destinationImplementationCreate.setConnectionConfiguration(destinationImplementationRead.getConnectionConfiguration());
-    destinationImplementationCreate.setDestinationId(destinationImplementationRead.getDestinationId());
+    destinationImplementationCreate.setDestinationDefinitionId(destinationImplementationRead.getDestinationDefinitionId());
     destinationImplementationCreate.setWorkspaceId(destinationImplementationRead.getWorkspaceId());
 
     when(destinationImplementationsHandler.createDestinationImplementation(destinationImplementationCreate))

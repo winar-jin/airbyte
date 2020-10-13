@@ -29,13 +29,13 @@ import com.google.common.collect.Lists;
 import io.airbyte.api.model.ConnectionRead;
 import io.airbyte.api.model.ConnectionStatus;
 import io.airbyte.api.model.ConnectionUpdate;
-import io.airbyte.api.model.DestinationIdRequestBody;
+import io.airbyte.api.model.DestinationDefinitionIdRequestBody;
+import io.airbyte.api.model.DestinationDefinitionSpecificationRead;
 import io.airbyte.api.model.DestinationImplementationCreate;
 import io.airbyte.api.model.DestinationImplementationIdRequestBody;
 import io.airbyte.api.model.DestinationImplementationRead;
 import io.airbyte.api.model.DestinationImplementationReadList;
 import io.airbyte.api.model.DestinationImplementationUpdate;
-import io.airbyte.api.model.DestinationSpecificationRead;
 import io.airbyte.api.model.WorkspaceIdRequestBody;
 import io.airbyte.commons.json.JsonSchemaValidator;
 import io.airbyte.commons.json.JsonValidationException;
@@ -79,14 +79,14 @@ public class DestinationImplementationsHandler {
       throws ConfigNotFoundException, IOException, JsonValidationException {
     // validate configuration
     validateDestinationImplementation(
-        destinationImplementationCreate.getDestinationId(),
+        destinationImplementationCreate.getDestinationDefinitionId(),
         destinationImplementationCreate.getConnectionConfiguration());
 
     // persist
     final UUID destinationImplementationId = uuidGenerator.get();
     persistDestinationConnectionImplementation(
         destinationImplementationCreate.getName() != null ? destinationImplementationCreate.getName() : "default",
-        destinationImplementationCreate.getDestinationId(),
+        destinationImplementationCreate.getDestinationDefinitionId(),
         destinationImplementationCreate.getWorkspaceId(),
         destinationImplementationId,
         destinationImplementationCreate.getConnectionConfiguration(),
@@ -122,7 +122,7 @@ public class DestinationImplementationsHandler {
     // persist
     persistDestinationConnectionImplementation(
         destinationImpl.getName(),
-        destinationImpl.getDestinationId(),
+        destinationImpl.getDestinationDefinitionId(),
         destinationImpl.getWorkspaceId(),
         destinationImpl.getDestinationImplementationId(),
         destinationImpl.getConnectionConfiguration(),
@@ -180,7 +180,8 @@ public class DestinationImplementationsHandler {
   private void validateDestinationImplementation(final UUID destinationId,
                                                  final JsonNode implementationJson)
       throws JsonValidationException, IOException, ConfigNotFoundException {
-    DestinationSpecificationRead dcs = schedulerHandler.getDestinationSpecification(new DestinationIdRequestBody().destinationId(destinationId));
+    DestinationDefinitionSpecificationRead dcs =
+        schedulerHandler.getDestinationSpecification(new DestinationDefinitionIdRequestBody().destinationDefinitionId(destinationId));
     validator.validate(dcs.getConnectionSpecification(), implementationJson);
   }
 
@@ -213,10 +214,10 @@ public class DestinationImplementationsHandler {
   private DestinationImplementationRead buildDestinationImplementationRead(final DestinationConnectionImplementation destinationConnectionImplementation,
                                                                            final StandardDestination standardDestination) {
     return new DestinationImplementationRead()
-        .destinationId(standardDestination.getDestinationId())
+        .destinationDefinitionId(standardDestination.getDestinationId())
         .destinationImplementationId(destinationConnectionImplementation.getDestinationImplementationId())
         .workspaceId(destinationConnectionImplementation.getWorkspaceId())
-        .destinationId(destinationConnectionImplementation.getDestinationId())
+        .destinationDefinitionId(destinationConnectionImplementation.getDestinationId())
         .connectionConfiguration(destinationConnectionImplementation.getConfiguration())
         .name(destinationConnectionImplementation.getName())
         .destinationName(standardDestination.getName());

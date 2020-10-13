@@ -143,7 +143,7 @@ public class AcceptanceTests {
         getDestinationDbConfig());
 
     assertEquals(name, destinationImpl.getName());
-    assertEquals(postgresDestinationSpecId, destinationImpl.getDestinationId());
+    assertEquals(postgresDestinationSpecId, destinationImpl.getDestinationDefinitionId());
     assertEquals(workspaceId, destinationImpl.getWorkspaceId());
     assertEquals(Jsons.jsonNode(destinationDbConfig), destinationImpl.getConnectionConfiguration());
   }
@@ -165,19 +165,19 @@ public class AcceptanceTests {
   @Order(3)
   public void testCreateSourceImplementation() throws ApiException {
     String dbName = "acc-test-db";
-    UUID postgresSourceId = getPostgresSourceId();
+    UUID postgresSourceDefinitionId = getPostgresSourceDefinitionId();
     UUID defaultWorkspaceId = PersistenceConstants.DEFAULT_WORKSPACE_ID;
     Map<Object, Object> sourceDbConfig = getSourceDbConfig();
 
     SourceImplementationRead response = createSourceImplementation(
         dbName,
         defaultWorkspaceId,
-        postgresSourceId,
+        postgresSourceDefinitionId,
         sourceDbConfig);
 
     assertEquals(dbName, response.getName());
     assertEquals(defaultWorkspaceId, response.getWorkspaceId());
-    assertEquals(postgresSourceId, response.getSourceId());
+    assertEquals(postgresSourceDefinitionId, response.getSourceDefinitionId());
     assertEquals(Jsons.jsonNode(sourceDbConfig), response.getConnectionConfiguration());
   }
 
@@ -397,18 +397,18 @@ public class AcceptanceTests {
             .name(name)
             .connectionConfiguration(Jsons.jsonNode(destinationConfig))
             .workspaceId(workspaceId)
-            .destinationId(destinationId));
+            .destinationDefinitionId(destinationId));
     destinationImplIds.add(destinationImplementation.getDestinationImplementationId());
     return destinationImplementation;
   }
 
   private UUID getPostgresDestinationId() throws ApiException {
-    return apiClient.getDestinationApi().listDestinations().getDestinations()
+    return apiClient.getDestinationDefinitionApi().listDestinationDefinitions().getDestinationDefinitions()
         .stream()
         .filter(dr -> dr.getName().toLowerCase().equals("postgres"))
         .findFirst()
         .orElseThrow()
-        .getDestinationId();
+        .getDestinationDefinitionId();
   }
 
   private Map<Object, Object> getSourceDbConfig() {
@@ -425,28 +425,28 @@ public class AcceptanceTests {
     return createSourceImplementation(
         "acceptanceTestDb-" + UUID.randomUUID().toString(),
         PersistenceConstants.DEFAULT_WORKSPACE_ID,
-        getPostgresSourceId(),
+        getPostgresSourceDefinitionId(),
         getSourceDbConfig());
   }
 
-  private SourceImplementationRead createSourceImplementation(String name, UUID workspaceId, UUID sourceId, Map<Object, Object> sourceConfig)
+  private SourceImplementationRead createSourceImplementation(String name, UUID workspaceId, UUID sourceDefId, Map<Object, Object> sourceConfig)
       throws ApiException {
     SourceImplementationRead sourceImplementation = apiClient.getSourceImplementationApi().createSourceImplementation(new SourceImplementationCreate()
         .name(name)
-        .sourceId(sourceId)
+        .sourceDefinitionId(sourceDefId)
         .workspaceId(workspaceId)
         .connectionConfiguration(Jsons.jsonNode(sourceConfig)));
     sourceImplIds.add(sourceImplementation.getSourceImplementationId());
     return sourceImplementation;
   }
 
-  private UUID getPostgresSourceId() throws ApiException {
-    return apiClient.getSourceDefinitionApi().listSources().getSources()
+  private UUID getPostgresSourceDefinitionId() throws ApiException {
+    return apiClient.getSourceDefinitionApi().listSourceDefinitions().getSourceDefinitions()
         .stream()
         .filter(sourceRead -> sourceRead.getName().toLowerCase().equals("postgres"))
         .findFirst()
         .orElseThrow()
-        .getSourceId();
+        .getSourceDefinitionId();
   }
 
   private void deleteSourceImpl(UUID sourceImplId) throws ApiException {

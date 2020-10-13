@@ -33,7 +33,7 @@ import static org.mockito.Mockito.when;
 
 import io.airbyte.api.model.CheckConnectionRead;
 import io.airbyte.api.model.ConnectionIdRequestBody;
-import io.airbyte.api.model.DestinationIdRequestBody;
+import io.airbyte.api.model.DestinationDefinitionIdRequestBody;
 import io.airbyte.api.model.DestinationImplementationIdRequestBody;
 import io.airbyte.api.model.SourceDefinitionIdRequestBody;
 import io.airbyte.api.model.SourceImplementationIdRequestBody;
@@ -150,14 +150,15 @@ class SchedulerHandlerTest {
 
   @Test
   void testGetDestinationSpec() throws JsonValidationException, IOException, ConfigNotFoundException, URISyntaxException {
-    DestinationIdRequestBody destinationIdRequestBody = new DestinationIdRequestBody().destinationId(UUID.randomUUID());
+    DestinationDefinitionIdRequestBody destinationDefinitionIdRequestBody =
+        new DestinationDefinitionIdRequestBody().destinationDefinitionId(UUID.randomUUID());
 
-    when(configRepository.getStandardDestination(destinationIdRequestBody.getDestinationId()))
+    when(configRepository.getStandardDestination(destinationDefinitionIdRequestBody.getDestinationDefinitionId()))
         .thenReturn(new StandardDestination()
             .withName("name")
             .withDockerRepository(DESTINATION_DOCKER_REPO)
             .withDockerImageTag(DESTINATION_DOCKER_TAG)
-            .withDestinationId(destinationIdRequestBody.getDestinationId()));
+            .withDestinationId(destinationDefinitionIdRequestBody.getDestinationDefinitionId()));
     when(schedulerPersistence.createGetSpecJob(DESTINATION_DOCKER_IMAGE)).thenReturn(JOB_ID);
     when(schedulerPersistence.getJob(JOB_ID)).thenReturn(inProgressJob).thenReturn(completedJob);
 
@@ -170,9 +171,9 @@ class SchedulerHandlerTest {
     when(jobOutput.getGetSpec()).thenReturn(specOutput);
     when(completedJob.getOutput()).thenReturn(Optional.of(jobOutput));
 
-    schedulerHandler.getDestinationSpecification(destinationIdRequestBody);
+    schedulerHandler.getDestinationSpecification(destinationDefinitionIdRequestBody);
 
-    verify(configRepository).getStandardDestination(destinationIdRequestBody.getDestinationId());
+    verify(configRepository).getStandardDestination(destinationDefinitionIdRequestBody.getDestinationDefinitionId());
     verify(schedulerPersistence).createGetSpecJob(DESTINATION_DOCKER_IMAGE);
     verify(schedulerPersistence, atLeast(2)).getJob(JOB_ID);
   }

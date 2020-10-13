@@ -32,17 +32,17 @@ import io.airbyte.api.model.ConnectionReadList;
 import io.airbyte.api.model.ConnectionSyncRead;
 import io.airbyte.api.model.ConnectionUpdate;
 import io.airbyte.api.model.DebugRead;
-import io.airbyte.api.model.DestinationIdRequestBody;
+import io.airbyte.api.model.DestinationDefinitionIdRequestBody;
+import io.airbyte.api.model.DestinationDefinitionRead;
+import io.airbyte.api.model.DestinationDefinitionReadList;
+import io.airbyte.api.model.DestinationDefinitionSpecificationRead;
+import io.airbyte.api.model.DestinationDefinitionUpdate;
 import io.airbyte.api.model.DestinationImplementationCreate;
 import io.airbyte.api.model.DestinationImplementationIdRequestBody;
 import io.airbyte.api.model.DestinationImplementationRead;
 import io.airbyte.api.model.DestinationImplementationReadList;
 import io.airbyte.api.model.DestinationImplementationRecreate;
 import io.airbyte.api.model.DestinationImplementationUpdate;
-import io.airbyte.api.model.DestinationRead;
-import io.airbyte.api.model.DestinationReadList;
-import io.airbyte.api.model.DestinationSpecificationRead;
-import io.airbyte.api.model.DestinationUpdate;
 import io.airbyte.api.model.JobIdRequestBody;
 import io.airbyte.api.model.JobInfoRead;
 import io.airbyte.api.model.JobListRequestBody;
@@ -74,8 +74,8 @@ import io.airbyte.scheduler.persistence.SchedulerPersistence;
 import io.airbyte.server.errors.KnownException;
 import io.airbyte.server.handlers.ConnectionsHandler;
 import io.airbyte.server.handlers.DebugInfoHandler;
+import io.airbyte.server.handlers.DestinationDefinitionsHandler;
 import io.airbyte.server.handlers.DestinationImplementationsHandler;
-import io.airbyte.server.handlers.DestinationsHandler;
 import io.airbyte.server.handlers.JobHistoryHandler;
 import io.airbyte.server.handlers.SchedulerHandler;
 import io.airbyte.server.handlers.SourceImplementationsHandler;
@@ -95,7 +95,7 @@ public class ConfigurationApi implements io.airbyte.api.V1Api {
   private final WorkspacesHandler workspacesHandler;
   private final SourcesHandler sourcesHandler;
   private final SourceImplementationsHandler sourceImplementationsHandler;
-  private final DestinationsHandler destinationsHandler;
+  private final DestinationDefinitionsHandler destinationDefinitionsHandler;
   private final DestinationImplementationsHandler destinationImplementationsHandler;
   private final ConnectionsHandler connectionsHandler;
   private final DebugInfoHandler debugInfoHandler;
@@ -112,7 +112,7 @@ public class ConfigurationApi implements io.airbyte.api.V1Api {
     DockerImageValidator dockerImageValidator = new DockerImageValidator(schedulerHandler);
     sourcesHandler = new SourcesHandler(configRepository, dockerImageValidator);
     connectionsHandler = new ConnectionsHandler(configRepository);
-    destinationsHandler = new DestinationsHandler(configRepository, dockerImageValidator);
+    destinationDefinitionsHandler = new DestinationDefinitionsHandler(configRepository, dockerImageValidator);
     destinationImplementationsHandler =
         new DestinationImplementationsHandler(configRepository, schemaValidator, schedulerHandler, connectionsHandler);
     sourceImplementationsHandler = new SourceImplementationsHandler(configRepository, schemaValidator, schedulerHandler, connectionsHandler);
@@ -221,25 +221,25 @@ public class ConfigurationApi implements io.airbyte.api.V1Api {
   // DESTINATION
 
   @Override
-  public DestinationReadList listDestinations() {
-    return execute(destinationsHandler::listDestinations);
+  public DestinationDefinitionReadList listDestinationDefinitions() {
+    return execute(destinationDefinitionsHandler::listDestinationDefinitions);
   }
 
   @Override
-  public DestinationRead getDestination(@Valid DestinationIdRequestBody destinationIdRequestBody) {
-    return execute(() -> destinationsHandler.getDestination(destinationIdRequestBody));
+  public DestinationDefinitionRead getDestinationDefinition(@Valid DestinationDefinitionIdRequestBody destinationDefinitionIdRequestBody) {
+    return execute(() -> destinationDefinitionsHandler.getDestinationDefinition(destinationDefinitionIdRequestBody));
   }
 
   @Override
-  public DestinationRead updateDestination(@Valid DestinationUpdate destinationUpdate) {
-    return execute(() -> destinationsHandler.updateDestination(destinationUpdate));
+  public DestinationDefinitionRead updateDestinationDefinition(@Valid DestinationDefinitionUpdate destinationDefinitionUpdate) {
+    return execute(() -> destinationDefinitionsHandler.updateDestinationDefinition(destinationDefinitionUpdate));
   }
 
   // DESTINATION SPECIFICATION
 
   @Override
-  public DestinationSpecificationRead getDestinationSpecification(@Valid DestinationIdRequestBody destinationIdRequestBody) {
-    return execute(() -> schedulerHandler.getDestinationSpecification(destinationIdRequestBody));
+  public DestinationDefinitionSpecificationRead getDestinationDefinitionSpecification(@Valid DestinationDefinitionIdRequestBody destinationDefinitionIdRequestBody) {
+    return execute(() -> schedulerHandler.getDestinationSpecification(destinationDefinitionIdRequestBody));
   }
 
   // DESTINATION IMPLEMENTATION

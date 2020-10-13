@@ -29,9 +29,9 @@ import io.airbyte.analytics.TrackingClientSingleton;
 import io.airbyte.api.model.CheckConnectionRead;
 import io.airbyte.api.model.ConnectionIdRequestBody;
 import io.airbyte.api.model.ConnectionSyncRead;
-import io.airbyte.api.model.DestinationIdRequestBody;
+import io.airbyte.api.model.DestinationDefinitionIdRequestBody;
+import io.airbyte.api.model.DestinationDefinitionSpecificationRead;
 import io.airbyte.api.model.DestinationImplementationIdRequestBody;
-import io.airbyte.api.model.DestinationSpecificationRead;
 import io.airbyte.api.model.SourceDefinitionIdRequestBody;
 import io.airbyte.api.model.SourceDefinitionSpecificationRead;
 import io.airbyte.api.model.SourceImplementationDiscoverSchemaRead;
@@ -176,9 +176,9 @@ public class SchedulerHandler {
     return job.getOutput().orElseThrow().getGetSpec().getSpecification();
   }
 
-  public DestinationSpecificationRead getDestinationSpecification(DestinationIdRequestBody destinationIdRequestBody)
+  public DestinationDefinitionSpecificationRead getDestinationSpecification(DestinationDefinitionIdRequestBody destinationDefinitionIdRequestBody)
       throws ConfigNotFoundException, IOException, JsonValidationException {
-    UUID destinationId = destinationIdRequestBody.getDestinationId();
+    UUID destinationId = destinationDefinitionIdRequestBody.getDestinationDefinitionId();
     StandardDestination destination = configRepository.getStandardDestination(destinationId);
     final String imageName = DockerUtils.getTaggedImageName(destination.getDockerRepository(), destination.getDockerImageTag());
     final ConnectorSpecification spec = getConnectorSpecification(imageName);
@@ -189,10 +189,10 @@ public class SchedulerHandler {
         .put("destination_id", destination.getDestinationId())
         .build());
 
-    return new DestinationSpecificationRead()
+    return new DestinationDefinitionSpecificationRead()
         .connectionSpecification(spec.getConnectionSpecification())
         .documentationUrl(spec.getDocumentationUrl().toString())
-        .destinationId(destinationId);
+        .destinationDefinitionId(destinationId);
   }
 
   public ConnectionSyncRead syncConnection(final ConnectionIdRequestBody connectionIdRequestBody)

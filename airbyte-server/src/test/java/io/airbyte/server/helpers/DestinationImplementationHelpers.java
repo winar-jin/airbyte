@@ -64,9 +64,9 @@ public class DestinationImplementationHelpers {
                                                                                StandardDestination standardDestination) {
 
     return new DestinationImplementationRead()
-        .destinationId(standardDestination.getDestinationId())
+        .destinationDefinitionId(standardDestination.getDestinationId())
         .workspaceId(destinationImplementation.getWorkspaceId())
-        .destinationId(destinationImplementation.getDestinationId())
+        .destinationDefinitionId(destinationImplementation.getDestinationId())
         .destinationImplementationId(destinationImplementation.getDestinationImplementationId())
         .connectionConfiguration(destinationImplementation.getConfiguration())
         .name(destinationImplementation.getName())
