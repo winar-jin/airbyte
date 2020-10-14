@@ -93,7 +93,7 @@ class ConnectionsHandlerTest {
 
     final ConnectionCreate connectionCreate = new ConnectionCreate()
         .sourceId(standardSync.getSourceImplementationId())
-        .destinationImplementationId(standardSync.getDestinationImplementationId())
+        .destinationId(standardSync.getDestinationImplementationId())
         .name("presto to hudi")
         .status(ConnectionStatus.ACTIVE)
         .syncMode(ConnectionCreate.SyncModeEnum.FULL_REFRESH)

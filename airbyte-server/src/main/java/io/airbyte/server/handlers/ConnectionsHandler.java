@@ -79,7 +79,7 @@ public class ConnectionsHandler {
         .withConnectionId(connectionId)
         .withName(connectionCreate.getName() != null ? connectionCreate.getName() : "default")
         .withSourceImplementationId(connectionCreate.getSourceId())
-        .withDestinationImplementationId(connectionCreate.getDestinationImplementationId())
+        .withDestinationImplementationId(connectionCreate.getDestinationId())
         .withSyncMode(Enums.convertTo(connectionCreate.getSyncMode(), StandardSync.SyncMode.class))
         .withStatus(toPersistenceStatus(connectionCreate.getStatus()));
 
@@ -192,7 +192,7 @@ public class ConnectionsHandler {
     return new ConnectionRead()
         .connectionId(standardSync.getConnectionId())
         .sourceId(standardSync.getSourceImplementationId())
-        .destinationImplementationId(standardSync.getDestinationImplementationId())
+        .destinationId(standardSync.getDestinationImplementationId())
         .status(toApiStatus(standardSync.getStatus()))
         .schedule(apiSchedule)
         .syncMode(toApiSyncMode(standardSync.getSyncMode()))

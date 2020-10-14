@@ -104,12 +104,12 @@ public class ConnectionHelpers {
 
   public static ConnectionRead generateExpectedConnectionRead(UUID connectionId,
                                                               UUID sourceId,
-                                                              UUID destinationImplementationId) {
+                                                              UUID destinationId) {
 
     return new ConnectionRead()
         .connectionId(connectionId)
         .sourceId(sourceId)
-        .destinationImplementationId(destinationImplementationId)
+        .destinationId(destinationId)
         .name("presto to hudi")
         .status(ConnectionStatus.ACTIVE)
         .syncMode(ConnectionRead.SyncModeEnum.FULL_REFRESH)

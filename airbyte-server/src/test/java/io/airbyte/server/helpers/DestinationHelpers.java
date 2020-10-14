@@ -25,7 +25,7 @@
 package io.airbyte.server.helpers;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import io.airbyte.api.model.DestinationImplementationRead;
+import io.airbyte.api.model.DestinationRead;
 import io.airbyte.commons.json.Jsons;
 import io.airbyte.config.DestinationConnectionImplementation;
 import io.airbyte.config.StandardDestination;
@@ -60,14 +60,14 @@ public class DestinationHelpers {
         .withTombstone(false);
   }
 
-  public static DestinationImplementationRead getDestinationImplementationRead(DestinationConnectionImplementation destinationImplementation,
-                                                                               StandardDestination standardDestination) {
+  public static DestinationRead getDestinationImplementationRead(DestinationConnectionImplementation destinationImplementation,
+                                                                 StandardDestination standardDestination) {
 
-    return new DestinationImplementationRead()
+    return new DestinationRead()
         .destinationDefinitionId(standardDestination.getDestinationId())
         .workspaceId(destinationImplementation.getWorkspaceId())
         .destinationDefinitionId(destinationImplementation.getDestinationId())
-        .destinationImplementationId(destinationImplementation.getDestinationImplementationId())
+        .destinationId(destinationImplementation.getDestinationImplementationId())
         .connectionConfiguration(destinationImplementation.getConfiguration())
         .name(destinationImplementation.getName())
         .destinationName(standardDestination.getName());

@@ -74,7 +74,7 @@ public class WebBackendConnectionsHandler {
   private WbConnectionRead buildWbConnectionRead(ConnectionRead connectionRead) throws ConfigNotFoundException, IOException, JsonValidationException {
     final SourceIdRequestBody sourceIdRequestBody = new SourceIdRequestBody()
         .sourceId(connectionRead.getSourceId());
-    final SourceRead sourceImplementation = sourceHandler.getSource(sourceIdRequestBody);
+    final SourceRead source = sourceHandler.getSource(sourceIdRequestBody);
 
     final JobListRequestBody jobListRequestBody = new JobListRequestBody()
         .configId(connectionRead.getConnectionId().toString())
@@ -83,13 +83,13 @@ public class WebBackendConnectionsHandler {
     final WbConnectionRead wbConnectionRead = new WbConnectionRead()
         .connectionId(connectionRead.getConnectionId())
         .sourceId(connectionRead.getSourceId())
-        .destinationImplementationId(connectionRead.getDestinationImplementationId())
+        .destinationId(connectionRead.getDestinationId())
         .name(connectionRead.getName())
         .syncSchema(connectionRead.getSyncSchema())
         .status(connectionRead.getStatus())
         .syncMode(Enums.convertTo(connectionRead.getSyncMode(), WbConnectionRead.SyncModeEnum.class))
         .schedule(connectionRead.getSchedule())
-        .source(sourceImplementation);
+        .source(source);
 
     final JobReadList jobReadList = jobHistoryHandler.listJobsFor(jobListRequestBody);
     wbConnectionRead.setIsSyncing(

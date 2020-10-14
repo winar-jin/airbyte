@@ -103,7 +103,7 @@ class WebBackendConnectionsHandlerTest {
     expected = new WbConnectionRead();
     expected.setConnectionId(connectionRead.getConnectionId());
     expected.setSourceId(connectionRead.getSourceId());
-    expected.setDestinationImplementationId(connectionRead.getDestinationImplementationId());
+    expected.setDestinationId(connectionRead.getDestinationId());
     expected.setName(connectionRead.getName());
     expected.setSyncSchema(connectionRead.getSyncSchema());
     expected.setStatus(connectionRead.getStatus());

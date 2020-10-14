@@ -153,7 +153,7 @@ public class AcceptanceTests {
   public void testDestinationCheckConnection() throws ApiException {
     UUID destinationImplId = createPostgresDestinationImpl().getDestinationImplementationId();
 
-    CheckConnectionRead.StatusEnum checkOperationStatus = apiClient.getDestinationImplementationApi()
+    CheckConnectionRead.StatusEnum checkOperationStatus = apiClient.getDestinationApi()
         .checkConnectionToDestinationImplementation(
             new DestinationImplementationIdRequestBody().destinationImplementationId(destinationImplId))
         .getStatus();
@@ -393,7 +393,7 @@ public class AcceptanceTests {
                                                                         Map<Object, Object> destinationConfig)
       throws ApiException {
     DestinationImplementationRead destinationImplementation =
-        apiClient.getDestinationImplementationApi().createDestinationImplementation(new DestinationImplementationCreate()
+        apiClient.getDestinationApi().createDestinationImplementation(new DestinationImplementationCreate()
             .name(name)
             .connectionConfiguration(Jsons.jsonNode(destinationConfig))
             .workspaceId(workspaceId)
@@ -465,7 +465,7 @@ public class AcceptanceTests {
   }
 
   private void deleteDestinationImpl(UUID destinationImplId) throws ApiException {
-    apiClient.getDestinationImplementationApi()
+    apiClient.getDestinationApi()
         .deleteDestinationImplementation(new DestinationImplementationIdRequestBody().destinationImplementationId(destinationImplId));
   }
 

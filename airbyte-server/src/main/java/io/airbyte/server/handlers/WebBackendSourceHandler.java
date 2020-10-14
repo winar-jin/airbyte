@@ -85,16 +85,13 @@ public class WebBackendSourceHandler {
 
     SourceRead source = sourceHandler.createSource(sourceCreate);
 
-    final SourceIdRequestBody sourceIdRequestBody = new SourceIdRequestBody()
-        .sourceId(source.getSourceId());
+    final SourceIdRequestBody sourceIdRequestBody = new SourceIdRequestBody().sourceId(source.getSourceId());
 
     try {
       CheckConnectionRead checkConnectionRead = schedulerHandler
           .checkSourceConnection(sourceIdRequestBody);
       if (checkConnectionRead.getStatus() == SUCCESS) {
-        final SourceIdRequestBody sourceIdRequestBody1 = new SourceIdRequestBody()
-            .sourceId(sourceRecreate.getSourceId());
-
+        final SourceIdRequestBody sourceIdRequestBody1 = new SourceIdRequestBody().sourceId(sourceRecreate.getSourceId());
         sourceHandler.deleteSource(sourceIdRequestBody1);
         return source;
       }

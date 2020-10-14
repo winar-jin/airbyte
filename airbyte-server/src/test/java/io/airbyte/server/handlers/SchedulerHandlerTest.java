@@ -34,7 +34,7 @@ import static org.mockito.Mockito.when;
 import io.airbyte.api.model.CheckConnectionRead;
 import io.airbyte.api.model.ConnectionIdRequestBody;
 import io.airbyte.api.model.DestinationDefinitionIdRequestBody;
-import io.airbyte.api.model.DestinationImplementationIdRequestBody;
+import io.airbyte.api.model.DestinationIdRequestBody;
 import io.airbyte.api.model.SourceDefinitionIdRequestBody;
 import io.airbyte.api.model.SourceIdRequestBody;
 import io.airbyte.commons.docker.DockerUtils;
@@ -198,24 +198,23 @@ class SchedulerHandlerTest {
   }
 
   @Test
-  void testCheckDestinationImplementationConnection() throws IOException, JsonValidationException, ConfigNotFoundException {
-    DestinationConnectionImplementation destinationImpl = DestinationHelpers.generateDestination(UUID.randomUUID());
-    final DestinationImplementationIdRequestBody request =
-        new DestinationImplementationIdRequestBody().destinationImplementationId(destinationImpl.getDestinationImplementationId());
+  void testCheckDestinationConnection() throws IOException, JsonValidationException, ConfigNotFoundException {
+    DestinationConnectionImplementation destination = DestinationHelpers.generateDestination(UUID.randomUUID());
+    final DestinationIdRequestBody request = new DestinationIdRequestBody().destinationId(destination.getDestinationImplementationId());
 
-    when(configRepository.getStandardDestination(destinationImpl.getDestinationId()))
+    when(configRepository.getStandardDestination(destination.getDestinationId()))
         .thenReturn(new StandardDestination()
             .withDockerRepository(DESTINATION_DOCKER_REPO)
             .withDockerImageTag(DESTINATION_DOCKER_TAG)
-            .withDestinationId(destinationImpl.getDestinationId()));
-    when(configRepository.getDestinationConnectionImplementation(destinationImpl.getDestinationImplementationId())).thenReturn(destinationImpl);
-    when(schedulerPersistence.createDestinationCheckConnectionJob(destinationImpl, DESTINATION_DOCKER_IMAGE)).thenReturn(JOB_ID);
+            .withDestinationId(destination.getDestinationId()));
+    when(configRepository.getDestinationConnectionImplementation(destination.getDestinationImplementationId())).thenReturn(destination);
+    when(schedulerPersistence.createDestinationCheckConnectionJob(destination, DESTINATION_DOCKER_IMAGE)).thenReturn(JOB_ID);
     when(schedulerPersistence.getJob(JOB_ID)).thenReturn(inProgressJob).thenReturn(completedJob);
 
-    schedulerHandler.checkDestinationImplementationConnection(request);
+    schedulerHandler.checkDestinationConnection(request);
 
-    verify(configRepository).getDestinationConnectionImplementation(destinationImpl.getDestinationImplementationId());
-    verify(schedulerPersistence).createDestinationCheckConnectionJob(destinationImpl, DESTINATION_DOCKER_IMAGE);
+    verify(configRepository).getDestinationConnectionImplementation(destination.getDestinationImplementationId());
+    verify(schedulerPersistence).createDestinationCheckConnectionJob(destination, DESTINATION_DOCKER_IMAGE);
     verify(schedulerPersistence, times(2)).getJob(JOB_ID);
   }
 

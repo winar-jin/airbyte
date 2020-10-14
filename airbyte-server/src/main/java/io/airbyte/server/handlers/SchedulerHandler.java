@@ -31,7 +31,7 @@ import io.airbyte.api.model.ConnectionIdRequestBody;
 import io.airbyte.api.model.ConnectionSyncRead;
 import io.airbyte.api.model.DestinationDefinitionIdRequestBody;
 import io.airbyte.api.model.DestinationDefinitionSpecificationRead;
-import io.airbyte.api.model.DestinationImplementationIdRequestBody;
+import io.airbyte.api.model.DestinationIdRequestBody;
 import io.airbyte.api.model.SourceDefinitionIdRequestBody;
 import io.airbyte.api.model.SourceDefinitionSpecificationRead;
 import io.airbyte.api.model.SourceDiscoverSchemaRead;
@@ -98,10 +98,10 @@ public class SchedulerHandler {
     return checkConnectionRead;
   }
 
-  public CheckConnectionRead checkDestinationImplementationConnection(DestinationImplementationIdRequestBody destinationImplementationIdRequestBody)
+  public CheckConnectionRead checkDestinationConnection(DestinationIdRequestBody destinationIdRequestBody)
       throws ConfigNotFoundException, IOException, JsonValidationException {
     final DestinationConnectionImplementation connectionImplementation =
-        configRepository.getDestinationConnectionImplementation(destinationImplementationIdRequestBody.getDestinationImplementationId());
+        configRepository.getDestinationConnectionImplementation(destinationIdRequestBody.getDestinationId());
 
     final StandardDestination destination = configRepository.getStandardDestination(connectionImplementation.getDestinationId());
     final String imageName = DockerUtils.getTaggedImageName(destination.getDockerRepository(), destination.getDockerImageTag());
