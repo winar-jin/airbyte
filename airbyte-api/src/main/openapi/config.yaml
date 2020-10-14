@@ -38,8 +38,8 @@ tags:
     description: SourceDefinition related resources.
   - name: source_definition_specification
     description: SourceDefinition specification related resources.
-  - name: source_implementation
-    description: Source implementation related resources.
+  - name: source
+    description: Source related resources.
   - name: destination_definition
     description: DestinationDefinition related resources.
   - name: destination_definition_specification
@@ -200,11 +200,11 @@ paths:
         "422":
           $ref: "#/components/responses/InvalidInput"
   # todo (cgardens) - rename to source_specifications/get_latest_from_source_id
-  /v1/source_specifications/get:
+  /v1/source_definition_specifications/get:
     post:
       tags:
-        - source_specification
-      summary: Get specification for a source.
+        - source_definition_specification
+      summary: Get specification for a SourceDefinition.
       operationId: getSourceDefinitionSpecification
       requestBody:
         content:
@@ -223,17 +223,17 @@ paths:
           description: SourceDefinition not found
         "422":
           $ref: "#/components/responses/InvalidInput"
-  /v1/source_implementations/create:
+  /v1/sources/create:
     post:
       tags:
-        - source_implementation
-      summary: Create a source implementation
-      operationId: createSourceImplementation
+        - source
+      summary: Create a source
+      operationId: createSource
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/SourceImplementationCreate"
+              $ref: "#/components/schemas/SourceCreate"
         required: true
       responses:
         "200":
@@ -241,20 +241,20 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SourceImplementationRead"
+                $ref: "#/components/schemas/SourceRead"
         "422":
           $ref: "#/components/responses/InvalidInput"
-  /v1/source_implementations/update:
+  /v1/sources/update:
     post:
       tags:
-        - source_implementation
+        - source
       summary: Update a source
-      operationId: updateSourceImplementation
+      operationId: updateSource
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/SourceImplementationUpdate"
+              $ref: "#/components/schemas/SourceUpdate"
         required: true
       responses:
         "200":
@@ -262,18 +262,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SourceImplementationRead"
+                $ref: "#/components/schemas/SourceRead"
         "404":
-          description: Source Implementation not found
+          description: Source not found
         "422":
           $ref: "#/components/responses/InvalidInput"
-  /v1/source_implementations/list:
+  /v1/sources/list:
     post:
       tags:
-        - source_implementation
-      summary: List source implementations for workspace
-      description: List source implementations for workspace. Does not return deleted source implementations.
-      operationId: listSourceImplementationsForWorkspace
+        - source
+      summary: List sources for workspace
+      description: List sources for workspace. Does not return deleted sources.
+      operationId: listSourcesForWorkspace
       requestBody:
         content:
           application/json:
@@ -286,22 +286,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SourceImplementationReadList"
+                $ref: "#/components/schemas/SourceReadList"
         "404":
           description: Workspace not found
         "422":
           $ref: "#/components/responses/InvalidInput"
-  /v1/source_implementations/get:
+  /v1/sources/get:
     post:
       tags:
-        - source_implementation
-      summary: Get source implementation
-      operationId: getSourceImplementation
+        - source
+      summary: Get source
+      operationId: getSource
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/SourceImplementationIdRequestBody"
+              $ref: "#/components/schemas/SourceIdRequestBody"
         required: true
       responses:
         "200":
@@ -309,41 +309,41 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SourceImplementationRead"
+                $ref: "#/components/schemas/SourceRead"
         "404":
-          description: Source Implementation not found
+          description: Source not found
         "422":
           $ref: "#/components/responses/InvalidInput"
-  /v1/source_implementations/delete:
+  /v1/sources/delete:
     post:
       tags:
-        - source_implementation
-      summary: Delete a source implementation
-      operationId: deleteSourceImplementation
+        - source
+      summary: Delete a source
+      operationId: deleteSource
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/SourceImplementationIdRequestBody"
+              $ref: "#/components/schemas/SourceIdRequestBody"
         required: true
       responses:
         "204":
           description: The resource was deleted successfully.
         "404":
-          description: Source Implementation not found
+          description: Source not found
         "422":
           $ref: "#/components/responses/InvalidInput"
-  /v1/source_implementations/check_connection:
+  /v1/sources/check_connection:
     post:
       tags:
-        - source_implementation
-      summary: Check connection to the source implementation
-      operationId: checkConnectionToSourceImplementation
+        - source
+      summary: Check connection to the source
+      operationId: checkConnectionToSource
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/SourceImplementationIdRequestBody"
+              $ref: "#/components/schemas/SourceIdRequestBody"
         required: true
       responses:
         "200":
@@ -353,20 +353,20 @@ paths:
               schema:
                 $ref: "#/components/schemas/CheckConnectionRead"
         "404":
-          description: Source Implementation not found
+          description: Source not found
         "422":
           $ref: "#/components/responses/InvalidInput"
-  /v1/source_implementations/discover_schema:
+  /v1/sources/discover_schema:
     post:
       tags:
-        - source_implementation
-      summary: Discover the schema of the source implementation
-      operationId: discoverSchemaForSourceImplementation
+        - source
+      summary: Discover the schema of the source
+      operationId: discoverSchemaForSource
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/SourceImplementationIdRequestBody"
+              $ref: "#/components/schemas/SourceIdRequestBody"
         required: true
       responses:
         "200":
@@ -374,9 +374,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SourceImplementationDiscoverSchemaRead"
+                $ref: "#/components/schemas/SourceDiscoverSchemaRead"
         "404":
-          description: Source Implementation not found
+          description: Source not found
         "422":
           $ref: "#/components/responses/InvalidInput"
   /v1/destination_definitions/update:
@@ -596,7 +596,7 @@ paths:
     post:
       tags:
         - connection
-      summary: Create a connection between a source implementation and a destination implementation
+      summary: Create a connection between a source and a destination implementation
       operationId: createConnection
       requestBody:
         content:
@@ -750,17 +750,17 @@ paths:
           description: Connection not found
         "422":
           $ref: "#/components/responses/InvalidInput"
-  /v1/web_backend/source_implementations/create:
+  /v1/web_backend/sources/create:
     post:
       tags:
         - web_backend
-      summary: Create a source implementation
-      operationId: webBackendCreateSourceImplementation
+      summary: Create a source
+      operationId: webBackendCreateSource
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/SourceImplementationCreate"
+              $ref: "#/components/schemas/SourceCreate"
         required: true
       responses:
         "200":
@@ -768,20 +768,20 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SourceImplementationRead"
+                $ref: "#/components/schemas/SourceRead"
         "422":
           $ref: "#/components/responses/InvalidInput"
-  /v1/web_backend/source_implementations/recreate:
+  /v1/web_backend/sources/recreate:
     post:
       tags:
         - web_backend
-      summary: Recreate a source implementation
-      operationId: webBackendRecreateSourceImplementation
+      summary: Recreate a source
+      operationId: webBackendRecreateSource
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/SourceImplementationRecreate"
+              $ref: "#/components/schemas/SourceRecreate"
         required: true
       responses:
         "200":
@@ -789,7 +789,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SourceImplementationRead"
+                $ref: "#/components/schemas/SourceRead"
         "422":
           $ref: "#/components/responses/InvalidInput"
   /v1/web_backend/destination_implementations/recreate:
@@ -1056,21 +1056,21 @@ components:
           type: string
         connectionSpecification:
           $ref: "#/components/schemas/SourceDefinitionSpecification"
-    # SOURCE IMPLEMENTATION
-    SourceImplementationId:
+    # SOURCE
+    SourceId:
       type: string
       format: uuid
-    SourceImplementationIdRequestBody:
+    SourceIdRequestBody:
       type: object
       required:
-        - sourceImplementationId
+        - sourceId
       properties:
-        sourceImplementationId:
-          $ref: "#/components/schemas/SourceImplementationId"
+        sourceId:
+          $ref: "#/components/schemas/SourceId"
     SourceConfiguration:
       description: The values required to configure the source. The schema for this must match the schema return by source_definition_specifications/get for the source.
       example: { user: "charles" }
-    SourceImplementationCreate:
+    SourceCreate:
       type: object
       required:
         - workspaceId
@@ -1086,40 +1086,40 @@ components:
           $ref: "#/components/schemas/SourceConfiguration"
         name:
           type: string
-    SourceImplementationRecreate:
+    SourceRecreate:
       type: object
       required:
         - workspaceId
-        - sourceImplementationId
+        - sourceId
         - connectionConfiguration
         - name
       properties:
-        sourceImplementationId:
-          $ref: "#/components/schemas/SourceImplementationId"
+        sourceId:
+          $ref: "#/components/schemas/SourceId"
         workspaceId:
           $ref: "#/components/schemas/WorkspaceId"
         connectionConfiguration:
           $ref: "#/components/schemas/SourceConfiguration"
         name:
           type: string
-    SourceImplementationUpdate:
+    SourceUpdate:
       type: object
       required:
-        - sourceImplementationId
+        - sourceId
         - connectionConfiguration
         - name
       properties:
-        sourceImplementationId:
-          $ref: "#/components/schemas/SourceImplementationId"
+        sourceId:
+          $ref: "#/components/schemas/SourceId"
         connectionConfiguration:
           $ref: "#/components/schemas/SourceConfiguration"
         name:
           type: string
-    SourceImplementationRead:
+    SourceRead:
       type: object
       required:
         - sourceDefinitionId
-        - sourceImplementationId
+        - sourceId
         - workspaceId
         - connectionConfiguration
         - name
@@ -1127,8 +1127,8 @@ components:
       properties:
         sourceDefinitionId:
           $ref: "#/components/schemas/SourceDefinitionId"
-        sourceImplementationId:
-          $ref: "#/components/schemas/SourceImplementationId"
+        sourceId:
+          $ref: "#/components/schemas/SourceId"
         workspaceId:
           $ref: "#/components/schemas/WorkspaceId"
         connectionConfiguration:
@@ -1137,7 +1137,7 @@ components:
           type: string
         sourceName:
           type: string
-    SourceImplementationReadList:
+    SourceReadList:
       type: object
       required:
         - sources
@@ -1145,8 +1145,8 @@ components:
         sources:
           type: array
           items:
-            $ref: "#/components/schemas/SourceImplementationRead"
-    SourceImplementationDiscoverSchemaRead:
+            $ref: "#/components/schemas/SourceRead"
+    SourceDiscoverSchemaRead:
       type: object
       required:
         - schema
@@ -1229,7 +1229,7 @@ components:
         - destinationImplementationId
       properties:
         destinationImplementationId:
-          $ref: "#/components/schemas/SourceImplementationId"
+          $ref: "#/components/schemas/DestinationImplementationId"
     DestinationConfiguration:
       description: The values required to configure the destination. The schema for this must match the schema return by destination_definition_specifications/get for the destinationDefinition.
       example: { user: "charles" }
@@ -1322,7 +1322,7 @@ components:
     ConnectionCreate:
       type: object
       required:
-        - sourceImplementationId
+        - sourceId
         - destinationImplementationId
         - syncMode
         - status
@@ -1330,8 +1330,8 @@ components:
         name:
           type: string
           description: Optional name of the connection
-        sourceImplementationId:
-          $ref: "#/components/schemas/SourceImplementationId"
+        sourceId:
+          $ref: "#/components/schemas/SourceId"
         destinationImplementationId:
           $ref: "#/components/schemas/DestinationImplementationId"
         syncMode:
@@ -1365,7 +1365,7 @@ components:
       required:
         - connectionId
         - name
-        - sourceImplementationId
+        - sourceId
         - destinationImplementationId
         - syncMode
         - syncSchema
@@ -1375,8 +1375,8 @@ components:
           $ref: "#/components/schemas/ConnectionId"
         name:
           type: string
-        sourceImplementationId:
-          $ref: "#/components/schemas/SourceImplementationId"
+        sourceId:
+          $ref: "#/components/schemas/SourceId"
         destinationImplementationId:
           $ref: "#/components/schemas/DestinationImplementationId"
         syncMode:
@@ -1594,7 +1594,7 @@ components:
       required:
         - connectionId
         - name
-        - sourceImplementationId
+        - sourceId
         - destinationImplementationId
         - syncMode
         - syncSchema
@@ -1606,8 +1606,8 @@ components:
           $ref: "#/components/schemas/ConnectionId"
         name:
           type: string
-        sourceImplementationId:
-          $ref: "#/components/schemas/SourceImplementationId"
+        sourceId:
+          $ref: "#/components/schemas/SourceId"
         destinationImplementationId:
           $ref: "#/components/schemas/DestinationImplementationId"
         syncMode:
@@ -1622,7 +1622,7 @@ components:
         status:
           $ref: "#/components/schemas/ConnectionStatus"
         source:
-          $ref: "#/components/schemas/SourceImplementationRead"
+          $ref: "#/components/schemas/SourceRead"
         lastSync:
           description: epoch time of last sync. null if no sync has taken place.
           type: integer

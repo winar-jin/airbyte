@@ -32,10 +32,10 @@ import static org.mockito.Mockito.when;
 
 import io.airbyte.api.model.CheckConnectionRead;
 import io.airbyte.api.model.CheckConnectionRead.StatusEnum;
-import io.airbyte.api.model.SourceImplementationCreate;
-import io.airbyte.api.model.SourceImplementationIdRequestBody;
-import io.airbyte.api.model.SourceImplementationRead;
-import io.airbyte.api.model.SourceImplementationRecreate;
+import io.airbyte.api.model.SourceCreate;
+import io.airbyte.api.model.SourceIdRequestBody;
+import io.airbyte.api.model.SourceRead;
+import io.airbyte.api.model.SourceRecreate;
 import io.airbyte.commons.json.JsonValidationException;
 import io.airbyte.config.SourceConnectionImplementation;
 import io.airbyte.config.StandardSource;
@@ -54,132 +54,132 @@ public class WebBackendSourceImplementationHandlerTest {
 
   private WebBackendSourceImplementationHandler wbSourceImplementationHandler;
 
-  private SourceImplementationsHandler sourceImplementationsHandler;
+  private SourceHandler sourceHandler;
   private SchedulerHandler schedulerHandler;
 
-  private SourceImplementationRead sourceImplementationRead;
+  private SourceRead sourceRead;
 
   @BeforeEach
   public void setup() throws IOException {
-    sourceImplementationsHandler = mock(SourceImplementationsHandler.class);
+    sourceHandler = mock(SourceHandler.class);
     schedulerHandler = mock(SchedulerHandler.class);
-    wbSourceImplementationHandler = new WebBackendSourceImplementationHandler(sourceImplementationsHandler, schedulerHandler);
+    wbSourceImplementationHandler = new WebBackendSourceImplementationHandler(sourceHandler, schedulerHandler);
 
     final StandardSource standardSource = SourceHelpers.generateSource();
     SourceConnectionImplementation sourceImplementation = SourceImplementationHelpers.generateSourceImplementation(UUID.randomUUID());
-    sourceImplementationRead = SourceImplementationHelpers.getSourceImplementationRead(sourceImplementation, standardSource);
+    sourceRead = SourceImplementationHelpers.getSourceImplementationRead(sourceImplementation, standardSource);
   }
 
   @Test
   public void testCreatesSourceWhenCheckConnectionSucceeds() throws JsonValidationException, IOException, ConfigNotFoundException {
-    SourceImplementationCreate sourceImplementationCreate = new SourceImplementationCreate();
-    sourceImplementationCreate.setName(sourceImplementationRead.getName());
-    sourceImplementationCreate.setConnectionConfiguration(sourceImplementationRead.getConnectionConfiguration());
-    sourceImplementationCreate.setSourceDefinitionId(sourceImplementationRead.getSourceDefinitionId());
-    sourceImplementationCreate.setWorkspaceId(sourceImplementationRead.getWorkspaceId());
+    SourceCreate sourceCreate = new SourceCreate();
+    sourceCreate.setName(sourceRead.getName());
+    sourceCreate.setConnectionConfiguration(sourceRead.getConnectionConfiguration());
+    sourceCreate.setSourceDefinitionId(sourceRead.getSourceDefinitionId());
+    sourceCreate.setWorkspaceId(sourceRead.getWorkspaceId());
 
-    when(sourceImplementationsHandler.createSourceImplementation(sourceImplementationCreate)).thenReturn(sourceImplementationRead);
+    when(sourceHandler.createSource(sourceCreate)).thenReturn(sourceRead);
 
-    SourceImplementationIdRequestBody sourceImplementationIdRequestBody = new SourceImplementationIdRequestBody();
-    sourceImplementationIdRequestBody.setSourceImplementationId(sourceImplementationRead.getSourceImplementationId());
+    SourceIdRequestBody sourceIdRequestBody = new SourceIdRequestBody();
+    sourceIdRequestBody.setSourceId(sourceRead.getSourceId());
 
     CheckConnectionRead checkConnectionRead = new CheckConnectionRead();
     checkConnectionRead.setStatus(StatusEnum.SUCCESS);
 
-    when(schedulerHandler.checkSourceImplementationConnection(sourceImplementationIdRequestBody)).thenReturn(checkConnectionRead);
+    when(schedulerHandler.checkSourceImplementationConnection(sourceIdRequestBody)).thenReturn(checkConnectionRead);
 
-    SourceImplementationRead returnedSource = wbSourceImplementationHandler.webBackendCreateSourceImplementationAndCheck(sourceImplementationCreate);
+    SourceRead returnedSource = wbSourceImplementationHandler.webBackendCreateSourceImplementationAndCheck(sourceCreate);
 
-    verify(sourceImplementationsHandler, times(0)).deleteSourceImplementation(Mockito.any());
-    assertEquals(sourceImplementationRead, returnedSource);
+    verify(sourceHandler, times(0)).deleteSource(Mockito.any());
+    assertEquals(sourceRead, returnedSource);
   }
 
   @Test
   public void testDeletesSourceWhenCheckConnectionFails() throws JsonValidationException, IOException, ConfigNotFoundException {
-    SourceImplementationCreate sourceImplementationCreate = new SourceImplementationCreate();
-    sourceImplementationCreate.setName(sourceImplementationRead.getName());
-    sourceImplementationCreate.setConnectionConfiguration(sourceImplementationRead.getConnectionConfiguration());
-    sourceImplementationCreate.setWorkspaceId(sourceImplementationRead.getWorkspaceId());
-    when(sourceImplementationsHandler.createSourceImplementation(sourceImplementationCreate)).thenReturn(sourceImplementationRead);
+    SourceCreate sourceCreate = new SourceCreate();
+    sourceCreate.setName(sourceRead.getName());
+    sourceCreate.setConnectionConfiguration(sourceRead.getConnectionConfiguration());
+    sourceCreate.setWorkspaceId(sourceRead.getWorkspaceId());
+    when(sourceHandler.createSource(sourceCreate)).thenReturn(sourceRead);
 
     CheckConnectionRead checkConnectionRead = new CheckConnectionRead();
     checkConnectionRead.setStatus(StatusEnum.FAILURE);
 
-    SourceImplementationIdRequestBody sourceImplementationIdRequestBody = new SourceImplementationIdRequestBody();
-    sourceImplementationIdRequestBody.setSourceImplementationId(sourceImplementationRead.getSourceImplementationId());
-    when(schedulerHandler.checkSourceImplementationConnection(sourceImplementationIdRequestBody)).thenReturn(checkConnectionRead);
+    SourceIdRequestBody sourceIdRequestBody = new SourceIdRequestBody();
+    sourceIdRequestBody.setSourceId(sourceRead.getSourceId());
+    when(schedulerHandler.checkSourceImplementationConnection(sourceIdRequestBody)).thenReturn(checkConnectionRead);
 
     Assertions.assertThrows(KnownException.class,
-        () -> wbSourceImplementationHandler.webBackendCreateSourceImplementationAndCheck(sourceImplementationCreate));
+        () -> wbSourceImplementationHandler.webBackendCreateSourceImplementationAndCheck(sourceCreate));
 
-    verify(sourceImplementationsHandler).deleteSourceImplementation(sourceImplementationIdRequestBody);
+    verify(sourceHandler).deleteSource(sourceIdRequestBody);
   }
 
   @Test
   public void testReCreatesSourceWhenCheckConnectionSucceeds() throws JsonValidationException, IOException, ConfigNotFoundException {
-    SourceImplementationCreate sourceImplementationCreate = new SourceImplementationCreate();
-    sourceImplementationCreate.setName(sourceImplementationRead.getName());
-    sourceImplementationCreate.setConnectionConfiguration(sourceImplementationRead.getConnectionConfiguration());
-    sourceImplementationCreate.setWorkspaceId(sourceImplementationRead.getWorkspaceId());
+    SourceCreate sourceCreate = new SourceCreate();
+    sourceCreate.setName(sourceRead.getName());
+    sourceCreate.setConnectionConfiguration(sourceRead.getConnectionConfiguration());
+    sourceCreate.setWorkspaceId(sourceRead.getWorkspaceId());
 
-    SourceImplementationRead newSourceImplementation = SourceImplementationHelpers
+    SourceRead newSourceImplementation = SourceImplementationHelpers
         .getSourceImplementationRead(SourceImplementationHelpers.generateSourceImplementation(UUID.randomUUID()), SourceHelpers.generateSource());
 
-    when(sourceImplementationsHandler.createSourceImplementation(sourceImplementationCreate)).thenReturn(newSourceImplementation);
+    when(sourceHandler.createSource(sourceCreate)).thenReturn(newSourceImplementation);
 
-    SourceImplementationIdRequestBody newSourceId = new SourceImplementationIdRequestBody();
-    newSourceId.setSourceImplementationId(newSourceImplementation.getSourceImplementationId());
+    SourceIdRequestBody newSourceId = new SourceIdRequestBody();
+    newSourceId.setSourceId(newSourceImplementation.getSourceId());
 
     CheckConnectionRead checkConnectionRead = new CheckConnectionRead();
     checkConnectionRead.setStatus(StatusEnum.SUCCESS);
 
     when(schedulerHandler.checkSourceImplementationConnection(newSourceId)).thenReturn(checkConnectionRead);
 
-    SourceImplementationRecreate sourceImplementationRecreate = new SourceImplementationRecreate();
-    sourceImplementationRecreate.setName(sourceImplementationRead.getName());
-    sourceImplementationRecreate.setConnectionConfiguration(sourceImplementationRead.getConnectionConfiguration());
-    sourceImplementationRecreate.setWorkspaceId(sourceImplementationRead.getWorkspaceId());
-    sourceImplementationRecreate.setSourceImplementationId(sourceImplementationRead.getSourceImplementationId());
+    SourceRecreate sourceRecreate = new SourceRecreate();
+    sourceRecreate.setName(sourceRead.getName());
+    sourceRecreate.setConnectionConfiguration(sourceRead.getConnectionConfiguration());
+    sourceRecreate.setWorkspaceId(sourceRead.getWorkspaceId());
+    sourceRecreate.setSourceId(sourceRead.getSourceId());
 
-    SourceImplementationIdRequestBody oldSourceIdBody = new SourceImplementationIdRequestBody();
-    oldSourceIdBody.setSourceImplementationId(sourceImplementationRead.getSourceImplementationId());
+    SourceIdRequestBody oldSourceIdBody = new SourceIdRequestBody();
+    oldSourceIdBody.setSourceId(sourceRead.getSourceId());
 
-    SourceImplementationRead returnedSource =
-        wbSourceImplementationHandler.webBackendRecreateSourceImplementationAndCheck(sourceImplementationRecreate);
+    SourceRead returnedSource =
+        wbSourceImplementationHandler.webBackendRecreateSourceImplementationAndCheck(sourceRecreate);
 
-    verify(sourceImplementationsHandler, times(1)).deleteSourceImplementation(Mockito.eq(oldSourceIdBody));
+    verify(sourceHandler, times(1)).deleteSource(Mockito.eq(oldSourceIdBody));
     assertEquals(newSourceImplementation, returnedSource);
   }
 
   @Test
   public void testRecreateDeletesNewCreatedSourceWhenFails() throws JsonValidationException, IOException, ConfigNotFoundException {
-    SourceImplementationCreate sourceImplementationCreate = new SourceImplementationCreate();
-    sourceImplementationCreate.setName(sourceImplementationRead.getName());
-    sourceImplementationCreate.setConnectionConfiguration(sourceImplementationRead.getConnectionConfiguration());
-    sourceImplementationCreate.setWorkspaceId(sourceImplementationRead.getWorkspaceId());
+    SourceCreate sourceCreate = new SourceCreate();
+    sourceCreate.setName(sourceRead.getName());
+    sourceCreate.setConnectionConfiguration(sourceRead.getConnectionConfiguration());
+    sourceCreate.setWorkspaceId(sourceRead.getWorkspaceId());
 
-    SourceImplementationRead newSourceImplementation = SourceImplementationHelpers
+    SourceRead newSourceImplementation = SourceImplementationHelpers
         .getSourceImplementationRead(SourceImplementationHelpers.generateSourceImplementation(UUID.randomUUID()), SourceHelpers.generateSource());
 
-    when(sourceImplementationsHandler.createSourceImplementation(sourceImplementationCreate)).thenReturn(newSourceImplementation);
+    when(sourceHandler.createSource(sourceCreate)).thenReturn(newSourceImplementation);
 
-    SourceImplementationIdRequestBody newSourceId = new SourceImplementationIdRequestBody();
-    newSourceId.setSourceImplementationId(newSourceImplementation.getSourceImplementationId());
+    SourceIdRequestBody newSourceId = new SourceIdRequestBody();
+    newSourceId.setSourceId(newSourceImplementation.getSourceId());
 
     CheckConnectionRead checkConnectionRead = new CheckConnectionRead();
     checkConnectionRead.setStatus(StatusEnum.FAILURE);
 
     when(schedulerHandler.checkSourceImplementationConnection(newSourceId)).thenReturn(checkConnectionRead);
 
-    SourceImplementationRecreate sourceImplementationRecreate = new SourceImplementationRecreate();
-    sourceImplementationRecreate.setName(sourceImplementationRead.getName());
-    sourceImplementationRecreate.setConnectionConfiguration(sourceImplementationRead.getConnectionConfiguration());
-    sourceImplementationRecreate.setWorkspaceId(sourceImplementationRead.getWorkspaceId());
-    sourceImplementationRecreate.setSourceImplementationId(sourceImplementationRead.getSourceImplementationId());
+    SourceRecreate sourceRecreate = new SourceRecreate();
+    sourceRecreate.setName(sourceRead.getName());
+    sourceRecreate.setConnectionConfiguration(sourceRead.getConnectionConfiguration());
+    sourceRecreate.setWorkspaceId(sourceRead.getWorkspaceId());
+    sourceRecreate.setSourceId(sourceRead.getSourceId());
 
     Assertions.assertThrows(KnownException.class,
-        () -> wbSourceImplementationHandler.webBackendRecreateSourceImplementationAndCheck(sourceImplementationRecreate));
-    verify(sourceImplementationsHandler, times(1)).deleteSourceImplementation(Mockito.eq(newSourceId));
+        () -> wbSourceImplementationHandler.webBackendRecreateSourceImplementationAndCheck(sourceRecreate));
+    verify(sourceHandler, times(1)).deleteSource(Mockito.eq(newSourceId));
   }
 
 }

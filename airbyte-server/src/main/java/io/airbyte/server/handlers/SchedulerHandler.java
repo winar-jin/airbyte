@@ -34,8 +34,8 @@ import io.airbyte.api.model.DestinationDefinitionSpecificationRead;
 import io.airbyte.api.model.DestinationImplementationIdRequestBody;
 import io.airbyte.api.model.SourceDefinitionIdRequestBody;
 import io.airbyte.api.model.SourceDefinitionSpecificationRead;
-import io.airbyte.api.model.SourceImplementationDiscoverSchemaRead;
-import io.airbyte.api.model.SourceImplementationIdRequestBody;
+import io.airbyte.api.model.SourceDiscoverSchemaRead;
+import io.airbyte.api.model.SourceIdRequestBody;
 import io.airbyte.commons.docker.DockerUtils;
 import io.airbyte.commons.enums.Enums;
 import io.airbyte.commons.json.JsonValidationException;
@@ -75,10 +75,10 @@ public class SchedulerHandler {
     this.schedulerPersistence = schedulerPersistence;
   }
 
-  public CheckConnectionRead checkSourceImplementationConnection(SourceImplementationIdRequestBody sourceImplementationIdRequestBody)
+  public CheckConnectionRead checkSourceImplementationConnection(SourceIdRequestBody sourceIdRequestBody)
       throws ConfigNotFoundException, IOException, JsonValidationException {
     final SourceConnectionImplementation connectionImplementation =
-        configRepository.getSourceConnectionImplementation(sourceImplementationIdRequestBody.getSourceImplementationId());
+        configRepository.getSourceConnectionImplementation(sourceIdRequestBody.getSourceId());
 
     final StandardSource source = configRepository.getStandardSource(connectionImplementation.getSourceId());
     final String imageName = DockerUtils.getTaggedImageName(source.getDockerRepository(), source.getDockerImageTag());
@@ -121,10 +121,10 @@ public class SchedulerHandler {
     return checkConnectionRead;
   }
 
-  public SourceImplementationDiscoverSchemaRead discoverSchemaForSourceImplementation(SourceImplementationIdRequestBody sourceImplementationIdRequestBody)
+  public SourceDiscoverSchemaRead discoverSchemaForSourceImplementation(SourceIdRequestBody sourceIdRequestBody)
       throws ConfigNotFoundException, IOException, JsonValidationException {
     final SourceConnectionImplementation connectionImplementation =
-        configRepository.getSourceConnectionImplementation(sourceImplementationIdRequestBody.getSourceImplementationId());
+        configRepository.getSourceConnectionImplementation(sourceIdRequestBody.getSourceId());
 
     StandardSource source = configRepository.getStandardSource(connectionImplementation.getSourceId());
     final String imageName = DockerUtils.getTaggedImageName(source.getDockerRepository(), source.getDockerImageTag());
@@ -145,7 +145,7 @@ public class SchedulerHandler {
         .put("job_id", jobId)
         .build());
 
-    return new SourceImplementationDiscoverSchemaRead().schema(SchemaConverter.toApiSchema(output.getSchema()));
+    return new SourceDiscoverSchemaRead().schema(SchemaConverter.toApiSchema(output.getSchema()));
   }
 
   public SourceDefinitionSpecificationRead getSourceSpecification(SourceDefinitionIdRequestBody sourceDefinitionIdRequestBody)

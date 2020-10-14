@@ -36,13 +36,13 @@ import io.airbyte.api.model.ConnectionRead;
 import io.airbyte.api.model.ConnectionReadList;
 import io.airbyte.api.model.ConnectionStatus;
 import io.airbyte.api.model.ConnectionUpdate;
+import io.airbyte.api.model.SourceCreate;
 import io.airbyte.api.model.SourceDefinitionIdRequestBody;
 import io.airbyte.api.model.SourceDefinitionSpecificationRead;
-import io.airbyte.api.model.SourceImplementationCreate;
-import io.airbyte.api.model.SourceImplementationIdRequestBody;
-import io.airbyte.api.model.SourceImplementationRead;
-import io.airbyte.api.model.SourceImplementationReadList;
-import io.airbyte.api.model.SourceImplementationUpdate;
+import io.airbyte.api.model.SourceIdRequestBody;
+import io.airbyte.api.model.SourceRead;
+import io.airbyte.api.model.SourceReadList;
+import io.airbyte.api.model.SourceUpdate;
 import io.airbyte.api.model.WorkspaceIdRequestBody;
 import io.airbyte.commons.json.JsonSchemaValidator;
 import io.airbyte.commons.json.JsonValidationException;
@@ -64,14 +64,14 @@ import java.util.function.Supplier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class SourceImplementationsHandlerTest {
+class SourceHandlerTest {
 
   private ConfigRepository configRepository;
   private StandardSource standardSource;
   private SourceDefinitionSpecificationRead sourceDefinitionSpecificationRead;
   private SourceDefinitionIdRequestBody sourceDefinitionIdRequestBody;
   private SourceConnectionImplementation sourceConnectionImplementation;
-  private SourceImplementationsHandler sourceImplementationsHandler;
+  private SourceHandler sourceHandler;
   private JsonSchemaValidator validator;
   private ConnectionsHandler connectionsHandler;
   private SchedulerHandler schedulerHandler;
@@ -97,7 +97,7 @@ class SourceImplementationsHandlerTest {
     sourceConnectionImplementation =
         SourceImplementationHelpers.generateSourceImplementation(standardSource.getSourceId());
 
-    sourceImplementationsHandler = new SourceImplementationsHandler(configRepository, validator, schedulerHandler, connectionsHandler, uuidGenerator);
+    sourceHandler = new SourceHandler(configRepository, validator, schedulerHandler, connectionsHandler, uuidGenerator);
   }
 
   @Test
@@ -114,20 +114,20 @@ class SourceImplementationsHandlerTest {
     when(configRepository.getStandardSource(sourceDefinitionSpecificationRead.getSourceDefinitionId()))
         .thenReturn(standardSource);
 
-    final SourceImplementationCreate sourceImplementationCreate = new SourceImplementationCreate()
+    final SourceCreate sourceCreate = new SourceCreate()
         .name(sourceConnectionImplementation.getName())
         .workspaceId(sourceConnectionImplementation.getWorkspaceId())
         .sourceDefinitionId(standardSource.getSourceId())
         .connectionConfiguration(SourceImplementationHelpers.getTestImplementationJson());
 
-    final SourceImplementationRead actualSourceImplementationRead =
-        sourceImplementationsHandler.createSourceImplementation(sourceImplementationCreate);
+    final SourceRead actualSourceRead =
+        sourceHandler.createSource(sourceCreate);
 
-    final SourceImplementationRead expectedSourceImplementationRead =
+    final SourceRead expectedSourceRead =
         SourceImplementationHelpers.getSourceImplementationRead(sourceConnectionImplementation, standardSource)
             .connectionConfiguration(SourceImplementationHelpers.getTestImplementationJson());
 
-    assertEquals(expectedSourceImplementationRead, actualSourceImplementationRead);
+    assertEquals(expectedSourceRead, actualSourceRead);
 
     verify(validator)
         .validate(
@@ -155,19 +155,19 @@ class SourceImplementationsHandlerTest {
     when(configRepository.getStandardSource(sourceDefinitionSpecificationRead.getSourceDefinitionId()))
         .thenReturn(standardSource);
 
-    final SourceImplementationUpdate sourceImplementationUpdate = new SourceImplementationUpdate()
+    final SourceUpdate sourceUpdate = new SourceUpdate()
         .name(sourceConnectionImplementation.getName())
-        .sourceImplementationId(sourceConnectionImplementation.getSourceImplementationId())
+        .sourceId(sourceConnectionImplementation.getSourceImplementationId())
         .connectionConfiguration(newConfiguration);
 
-    final SourceImplementationRead actualSourceImplementationRead =
-        sourceImplementationsHandler.updateSourceImplementation(sourceImplementationUpdate);
+    final SourceRead actualSourceRead =
+        sourceHandler.updateSource(sourceUpdate);
 
-    SourceImplementationRead expectedSourceImplementationRead =
+    SourceRead expectedSourceRead =
         SourceImplementationHelpers.getSourceImplementationRead(sourceConnectionImplementation, standardSource)
             .connectionConfiguration(newConfiguration);
 
-    assertEquals(expectedSourceImplementationRead, actualSourceImplementationRead);
+    assertEquals(expectedSourceRead, actualSourceRead);
 
     verify(configRepository).writeSourceConnectionImplementation(expectedSourceConnectionImplementation);
   }
@@ -183,16 +183,16 @@ class SourceImplementationsHandlerTest {
     when(configRepository.getStandardSource(sourceDefinitionSpecificationRead.getSourceDefinitionId()))
         .thenReturn(standardSource);
 
-    SourceImplementationRead expectedSourceImplementationRead =
+    SourceRead expectedSourceRead =
         SourceImplementationHelpers.getSourceImplementationRead(sourceConnectionImplementation, standardSource);
 
-    final SourceImplementationIdRequestBody sourceImplementationIdRequestBody = new SourceImplementationIdRequestBody()
-        .sourceImplementationId(expectedSourceImplementationRead.getSourceImplementationId());
+    final SourceIdRequestBody sourceIdRequestBody = new SourceIdRequestBody()
+        .sourceId(expectedSourceRead.getSourceId());
 
-    final SourceImplementationRead actualSourceImplementationRead =
-        sourceImplementationsHandler.getSourceImplementation(sourceImplementationIdRequestBody);
+    final SourceRead actualSourceRead =
+        sourceHandler.getSource(sourceIdRequestBody);
 
-    assertEquals(expectedSourceImplementationRead, actualSourceImplementationRead);
+    assertEquals(expectedSourceRead, actualSourceRead);
   }
 
   @Test
@@ -206,16 +206,16 @@ class SourceImplementationsHandlerTest {
     when(configRepository.getStandardSource(sourceDefinitionSpecificationRead.getSourceDefinitionId()))
         .thenReturn(standardSource);
 
-    SourceImplementationRead expectedSourceImplementationRead =
+    SourceRead expectedSourceRead =
         SourceImplementationHelpers.getSourceImplementationRead(sourceConnectionImplementation, standardSource);
 
     final WorkspaceIdRequestBody workspaceIdRequestBody = new WorkspaceIdRequestBody()
         .workspaceId(sourceConnectionImplementation.getWorkspaceId());
 
-    final SourceImplementationReadList actualSourceImplementationRead =
-        sourceImplementationsHandler.listSourceImplementationsForWorkspace(workspaceIdRequestBody);
+    final SourceReadList actualSourceImplementationRead =
+        sourceHandler.listSourcesForWorkspace(workspaceIdRequestBody);
 
-    assertEquals(expectedSourceImplementationRead, actualSourceImplementationRead.getSources().get(0));
+    assertEquals(expectedSourceRead, actualSourceImplementationRead.getSources().get(0));
   }
 
   @Test
@@ -235,8 +235,8 @@ class SourceImplementationsHandlerTest {
     when(configRepository.getStandardSource(sourceDefinitionSpecificationRead.getSourceDefinitionId()))
         .thenReturn(standardSource);
 
-    final SourceImplementationIdRequestBody sourceImplementationIdRequestBody = new SourceImplementationIdRequestBody()
-        .sourceImplementationId(sourceConnectionImplementation.getSourceImplementationId());
+    final SourceIdRequestBody sourceIdRequestBody = new SourceIdRequestBody()
+        .sourceId(sourceConnectionImplementation.getSourceImplementationId());
 
     final StandardSync standardSync = ConnectionHelpers.generateSyncWithSourceImplId(sourceConnectionImplementation.getSourceImplementationId());
 
@@ -247,7 +247,7 @@ class SourceImplementationsHandlerTest {
 
     final WorkspaceIdRequestBody workspaceIdRequestBody = new WorkspaceIdRequestBody().workspaceId(sourceConnectionImplementation.getWorkspaceId());
     when(connectionsHandler.listConnectionsForWorkspace(workspaceIdRequestBody)).thenReturn(connectionReadList);
-    sourceImplementationsHandler.deleteSourceImplementation(sourceImplementationIdRequestBody);
+    sourceHandler.deleteSource(sourceIdRequestBody);
 
     verify(configRepository).writeSourceConnectionImplementation(expectedSourceConnectionImplementation);
 

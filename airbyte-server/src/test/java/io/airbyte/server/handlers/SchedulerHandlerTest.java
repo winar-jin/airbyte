@@ -36,7 +36,7 @@ import io.airbyte.api.model.ConnectionIdRequestBody;
 import io.airbyte.api.model.DestinationDefinitionIdRequestBody;
 import io.airbyte.api.model.DestinationImplementationIdRequestBody;
 import io.airbyte.api.model.SourceDefinitionIdRequestBody;
-import io.airbyte.api.model.SourceImplementationIdRequestBody;
+import io.airbyte.api.model.SourceIdRequestBody;
 import io.airbyte.commons.docker.DockerUtils;
 import io.airbyte.commons.enums.Enums;
 import io.airbyte.commons.json.JsonValidationException;
@@ -100,8 +100,8 @@ class SchedulerHandlerTest {
   @Test
   void testCheckSourceImplementationConnection() throws JsonValidationException, IOException, ConfigNotFoundException {
     SourceConnectionImplementation sourceImpl = SourceImplementationHelpers.generateSourceImplementation(UUID.randomUUID());
-    final SourceImplementationIdRequestBody request =
-        new SourceImplementationIdRequestBody().sourceImplementationId(sourceImpl.getSourceImplementationId());
+    final SourceIdRequestBody request =
+        new SourceIdRequestBody().sourceId(sourceImpl.getSourceImplementationId());
 
     when(configRepository.getStandardSource(sourceImpl.getSourceId()))
         .thenReturn(new StandardSource()
@@ -222,8 +222,8 @@ class SchedulerHandlerTest {
   @Test
   void testDiscoverSchemaForSourceImplementation() throws IOException, JsonValidationException, ConfigNotFoundException {
     SourceConnectionImplementation sourceImpl = SourceImplementationHelpers.generateSourceImplementation(UUID.randomUUID());
-    final SourceImplementationIdRequestBody request =
-        new SourceImplementationIdRequestBody().sourceImplementationId(sourceImpl.getSourceImplementationId());
+    final SourceIdRequestBody request =
+        new SourceIdRequestBody().sourceId(sourceImpl.getSourceImplementationId());
 
     when(configRepository.getStandardSource(sourceImpl.getSourceId()))
         .thenReturn(new StandardSource()

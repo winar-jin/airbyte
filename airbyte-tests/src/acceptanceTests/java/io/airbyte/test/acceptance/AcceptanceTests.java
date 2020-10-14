@@ -43,9 +43,9 @@ import io.airbyte.api.client.model.ConnectionUpdate;
 import io.airbyte.api.client.model.DestinationImplementationCreate;
 import io.airbyte.api.client.model.DestinationImplementationIdRequestBody;
 import io.airbyte.api.client.model.DestinationImplementationRead;
-import io.airbyte.api.client.model.SourceImplementationCreate;
-import io.airbyte.api.client.model.SourceImplementationIdRequestBody;
-import io.airbyte.api.client.model.SourceImplementationRead;
+import io.airbyte.api.client.model.SourceCreate;
+import io.airbyte.api.client.model.SourceIdRequestBody;
+import io.airbyte.api.client.model.SourceRead;
 import io.airbyte.api.client.model.SourceSchema;
 import io.airbyte.commons.json.Jsons;
 import io.airbyte.commons.resources.MoreResources;
@@ -169,7 +169,7 @@ public class AcceptanceTests {
     UUID defaultWorkspaceId = PersistenceConstants.DEFAULT_WORKSPACE_ID;
     Map<Object, Object> sourceDbConfig = getSourceDbConfig();
 
-    SourceImplementationRead response = createSourceImplementation(
+    SourceRead response = createSourceImplementation(
         dbName,
         defaultWorkspaceId,
         postgresSourceDefinitionId,
@@ -184,10 +184,10 @@ public class AcceptanceTests {
   @Test
   @Order(4)
   public void testSourceCheckConnection() throws ApiException {
-    UUID sourceImplId = createPostgresSourceImpl().getSourceImplementationId();
+    UUID sourceId = createPostgresSource().getSourceId();
 
-    CheckConnectionRead checkConnectionRead = apiClient.getSourceImplementationApi()
-        .checkConnectionToSourceImplementation(new SourceImplementationIdRequestBody().sourceImplementationId(sourceImplId));
+    CheckConnectionRead checkConnectionRead = apiClient.getSourceApi()
+        .checkConnectionToSource(new SourceIdRequestBody().sourceId(sourceId));
 
     assertEquals(CheckConnectionRead.StatusEnum.SUCCESS, checkConnectionRead.getStatus());
   }
@@ -195,7 +195,7 @@ public class AcceptanceTests {
   @Test
   @Order(5)
   public void testDiscoverSourceSchema() throws ApiException, IOException {
-    UUID sourceImplementationId = createPostgresSourceImpl().getSourceImplementationId();
+    UUID sourceImplementationId = createPostgresSource().getSourceId();
 
     SourceSchema actualSchema = discoverSourceSchema(sourceImplementationId);
 
@@ -206,7 +206,7 @@ public class AcceptanceTests {
   @Test
   @Order(6)
   public void testCreateConnection() throws ApiException {
-    UUID sourceImplId = createPostgresSourceImpl().getSourceImplementationId();
+    UUID sourceImplId = createPostgresSource().getSourceId();
     SourceSchema schema = discoverSourceSchema(sourceImplId);
     UUID destinationImplId = createPostgresDestinationImpl().getDestinationImplementationId();
     String name = "test-connection-" + UUID.randomUUID().toString();
@@ -215,7 +215,7 @@ public class AcceptanceTests {
 
     ConnectionRead createdConnection = createConnection(name, sourceImplId, destinationImplId, schema, schedule, syncMode);
 
-    assertEquals(sourceImplId, createdConnection.getSourceImplementationId());
+    assertEquals(sourceImplId, createdConnection.getSourceId());
     assertEquals(destinationImplId, createdConnection.getDestinationImplementationId());
     assertEquals(ConnectionRead.SyncModeEnum.FULL_REFRESH, createdConnection.getSyncMode());
     assertEquals(schema, createdConnection.getSyncSchema());
@@ -227,7 +227,7 @@ public class AcceptanceTests {
   @Order(7)
   public void testManualSync() throws ApiException, SQLException {
     String connectionName = "test-connection";
-    UUID sourceImplId = createPostgresSourceImpl().getSourceImplementationId();
+    UUID sourceImplId = createPostgresSource().getSourceId();
     UUID destinationImplId = createPostgresDestinationImpl().getDestinationImplementationId();
     SourceSchema schema = discoverSourceSchema(sourceImplId);
     schema.getStreams().forEach(table -> table.getFields().forEach(c -> c.setSelected(true))); // select all fields
@@ -246,7 +246,7 @@ public class AcceptanceTests {
   @Order(8)
   public void testScheduledSync() throws InterruptedException, SQLException, ApiException {
     String connectionName = "test-connection";
-    UUID sourceImplId = createPostgresSourceImpl().getSourceImplementationId();
+    UUID sourceImplId = createPostgresSource().getSourceId();
     UUID destinationImplId = createPostgresDestinationImpl().getDestinationImplementationId();
     SourceSchema schema = discoverSourceSchema(sourceImplId);
     schema.getStreams().forEach(table -> table.getFields().forEach(c -> c.setSelected(true))); // select all fields
@@ -262,8 +262,8 @@ public class AcceptanceTests {
   }
 
   private SourceSchema discoverSourceSchema(UUID sourceImplementationId) throws ApiException {
-    return apiClient.getSourceImplementationApi().discoverSchemaForSourceImplementation(
-        new SourceImplementationIdRequestBody().sourceImplementationId(sourceImplementationId)).getSchema();
+    return apiClient.getSourceApi().discoverSchemaForSource(
+        new SourceIdRequestBody().sourceId(sourceImplementationId)).getSchema();
   }
 
   private void assertSourceAndTargetDbInSync(PostgreSQLContainer sourceDb, PostgreSQLContainer targetDb) throws SQLException {
@@ -358,7 +358,7 @@ public class AcceptanceTests {
     ConnectionRead connection = apiClient.getConnectionApi().createConnection(
         new ConnectionCreate()
             .status(ConnectionStatus.ACTIVE)
-            .sourceImplementationId(sourceImplId)
+            .sourceId(sourceImplId)
             .destinationImplementationId(destinationImplId)
             .syncMode(syncMode)
             .syncSchema(schema)
@@ -421,7 +421,7 @@ public class AcceptanceTests {
     return dbConfig;
   }
 
-  private SourceImplementationRead createPostgresSourceImpl() throws ApiException {
+  private SourceRead createPostgresSource() throws ApiException {
     return createSourceImplementation(
         "acceptanceTestDb-" + UUID.randomUUID().toString(),
         PersistenceConstants.DEFAULT_WORKSPACE_ID,
@@ -429,14 +429,14 @@ public class AcceptanceTests {
         getSourceDbConfig());
   }
 
-  private SourceImplementationRead createSourceImplementation(String name, UUID workspaceId, UUID sourceDefId, Map<Object, Object> sourceConfig)
+  private SourceRead createSourceImplementation(String name, UUID workspaceId, UUID sourceDefId, Map<Object, Object> sourceConfig)
       throws ApiException {
-    SourceImplementationRead sourceImplementation = apiClient.getSourceImplementationApi().createSourceImplementation(new SourceImplementationCreate()
+    SourceRead sourceImplementation = apiClient.getSourceApi().createSource(new SourceCreate()
         .name(name)
         .sourceDefinitionId(sourceDefId)
         .workspaceId(workspaceId)
         .connectionConfiguration(Jsons.jsonNode(sourceConfig)));
-    sourceImplIds.add(sourceImplementation.getSourceImplementationId());
+    sourceImplIds.add(sourceImplementation.getSourceId());
     return sourceImplementation;
   }
 
@@ -450,7 +450,7 @@ public class AcceptanceTests {
   }
 
   private void deleteSourceImpl(UUID sourceImplId) throws ApiException {
-    apiClient.getSourceImplementationApi().deleteSourceImplementation(new SourceImplementationIdRequestBody().sourceImplementationId(sourceImplId));
+    apiClient.getSourceApi().deleteSource(new SourceIdRequestBody().sourceId(sourceImplId));
   }
 
   private void disableConnection(UUID connectionId) throws ApiException {

@@ -25,7 +25,7 @@
 package io.airbyte.server.helpers;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import io.airbyte.api.model.SourceImplementationRead;
+import io.airbyte.api.model.SourceRead;
 import io.airbyte.commons.json.Jsons;
 import io.airbyte.config.SourceConnectionImplementation;
 import io.airbyte.config.StandardSource;
@@ -58,14 +58,14 @@ public class SourceImplementationHelpers {
     return Jsons.deserialize(Files.readString(path));
   }
 
-  public static SourceImplementationRead getSourceImplementationRead(SourceConnectionImplementation sourceImplementation,
-                                                                     StandardSource standardSource) {
+  public static SourceRead getSourceImplementationRead(SourceConnectionImplementation sourceImplementation,
+                                                       StandardSource standardSource) {
 
-    return new SourceImplementationRead()
+    return new SourceRead()
         .sourceDefinitionId(standardSource.getSourceId())
         .workspaceId(sourceImplementation.getWorkspaceId())
         .sourceDefinitionId(sourceImplementation.getSourceId())
-        .sourceImplementationId(sourceImplementation.getSourceImplementationId())
+        .sourceId(sourceImplementation.getSourceImplementationId())
         .connectionConfiguration(sourceImplementation.getConfiguration())
         .name(sourceImplementation.getName())
         .sourceName(standardSource.getName());

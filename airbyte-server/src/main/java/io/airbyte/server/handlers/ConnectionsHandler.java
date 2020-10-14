@@ -78,7 +78,7 @@ public class ConnectionsHandler {
     final StandardSync standardSync = new StandardSync()
         .withConnectionId(connectionId)
         .withName(connectionCreate.getName() != null ? connectionCreate.getName() : "default")
-        .withSourceImplementationId(connectionCreate.getSourceImplementationId())
+        .withSourceImplementationId(connectionCreate.getSourceId())
         .withDestinationImplementationId(connectionCreate.getDestinationImplementationId())
         .withSyncMode(Enums.convertTo(connectionCreate.getSyncMode(), StandardSync.SyncMode.class))
         .withStatus(toPersistenceStatus(connectionCreate.getStatus()));
@@ -191,7 +191,7 @@ public class ConnectionsHandler {
 
     return new ConnectionRead()
         .connectionId(standardSync.getConnectionId())
-        .sourceImplementationId(standardSync.getSourceImplementationId())
+        .sourceId(standardSync.getSourceImplementationId())
         .destinationImplementationId(standardSync.getDestinationImplementationId())
         .status(toApiStatus(standardSync.getStatus()))
         .schedule(apiSchedule)

@@ -27,10 +27,10 @@ package io.airbyte.server.handlers;
 import static io.airbyte.api.model.CheckConnectionRead.StatusEnum.SUCCESS;
 
 import io.airbyte.api.model.CheckConnectionRead;
-import io.airbyte.api.model.SourceImplementationCreate;
-import io.airbyte.api.model.SourceImplementationIdRequestBody;
-import io.airbyte.api.model.SourceImplementationRead;
-import io.airbyte.api.model.SourceImplementationRecreate;
+import io.airbyte.api.model.SourceCreate;
+import io.airbyte.api.model.SourceIdRequestBody;
+import io.airbyte.api.model.SourceRead;
+import io.airbyte.api.model.SourceRecreate;
 import io.airbyte.commons.json.JsonValidationException;
 import io.airbyte.config.persistence.ConfigNotFoundException;
 import io.airbyte.server.errors.KnownException;
@@ -42,29 +42,29 @@ public class WebBackendSourceImplementationHandler {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(WebBackendSourceImplementationHandler.class);
 
-  private final SourceImplementationsHandler sourceImplementationsHandler;
+  private final SourceHandler sourceHandler;
 
   private final SchedulerHandler schedulerHandler;
 
   public WebBackendSourceImplementationHandler(
-                                               final SourceImplementationsHandler sourceImplementationsHandler,
+                                               final SourceHandler sourceHandler,
                                                final SchedulerHandler schedulerHandler) {
-    this.sourceImplementationsHandler = sourceImplementationsHandler;
+    this.sourceHandler = sourceHandler;
     this.schedulerHandler = schedulerHandler;
   }
 
-  public SourceImplementationRead webBackendCreateSourceImplementationAndCheck(
-                                                                               SourceImplementationCreate sourceImplementationCreate)
+  public SourceRead webBackendCreateSourceImplementationAndCheck(
+                                                                 SourceCreate sourceCreate)
       throws ConfigNotFoundException, IOException, JsonValidationException {
-    SourceImplementationRead sourceImplementation = sourceImplementationsHandler
-        .createSourceImplementation(sourceImplementationCreate);
+    SourceRead sourceImplementation = sourceHandler
+        .createSource(sourceCreate);
 
-    final SourceImplementationIdRequestBody sourceImplementationIdRequestBody = new SourceImplementationIdRequestBody()
-        .sourceImplementationId(sourceImplementation.getSourceImplementationId());
+    final SourceIdRequestBody sourceIdRequestBody = new SourceIdRequestBody()
+        .sourceId(sourceImplementation.getSourceId());
 
     try {
       CheckConnectionRead checkConnectionRead = schedulerHandler
-          .checkSourceImplementationConnection(sourceImplementationIdRequestBody);
+          .checkSourceImplementationConnection(sourceIdRequestBody);
       if (checkConnectionRead.getStatus() == SUCCESS) {
         return sourceImplementation;
       }
@@ -72,39 +72,39 @@ public class WebBackendSourceImplementationHandler {
       LOGGER.error("Error while checking connection", e);
     }
 
-    sourceImplementationsHandler.deleteSourceImplementation(sourceImplementationIdRequestBody);
+    sourceHandler.deleteSource(sourceIdRequestBody);
     throw new KnownException(400, "Unable to connect to source");
   }
 
-  public SourceImplementationRead webBackendRecreateSourceImplementationAndCheck(
-                                                                                 SourceImplementationRecreate sourceImplementationRecreate)
+  public SourceRead webBackendRecreateSourceImplementationAndCheck(
+                                                                   SourceRecreate sourceRecreate)
       throws ConfigNotFoundException, IOException, JsonValidationException {
-    SourceImplementationCreate sourceImplementationCreate = new SourceImplementationCreate();
-    sourceImplementationCreate.setConnectionConfiguration(sourceImplementationRecreate.getConnectionConfiguration());
-    sourceImplementationCreate.setName(sourceImplementationRecreate.getName());
-    sourceImplementationCreate.setWorkspaceId(sourceImplementationRecreate.getWorkspaceId());
+    SourceCreate sourceCreate = new SourceCreate();
+    sourceCreate.setConnectionConfiguration(sourceRecreate.getConnectionConfiguration());
+    sourceCreate.setName(sourceRecreate.getName());
+    sourceCreate.setWorkspaceId(sourceRecreate.getWorkspaceId());
 
-    SourceImplementationRead sourceImplementation = sourceImplementationsHandler
-        .createSourceImplementation(sourceImplementationCreate);
+    SourceRead sourceImplementation = sourceHandler
+        .createSource(sourceCreate);
 
-    final SourceImplementationIdRequestBody sourceImplementationIdRequestBody = new SourceImplementationIdRequestBody()
-        .sourceImplementationId(sourceImplementation.getSourceImplementationId());
+    final SourceIdRequestBody sourceIdRequestBody = new SourceIdRequestBody()
+        .sourceId(sourceImplementation.getSourceId());
 
     try {
       CheckConnectionRead checkConnectionRead = schedulerHandler
-          .checkSourceImplementationConnection(sourceImplementationIdRequestBody);
+          .checkSourceImplementationConnection(sourceIdRequestBody);
       if (checkConnectionRead.getStatus() == SUCCESS) {
-        final SourceImplementationIdRequestBody sourceImplementationIdRequestBody1 = new SourceImplementationIdRequestBody()
-            .sourceImplementationId(sourceImplementationRecreate.getSourceImplementationId());
+        final SourceIdRequestBody sourceIdRequestBody1 = new SourceIdRequestBody()
+            .sourceId(sourceRecreate.getSourceId());
 
-        sourceImplementationsHandler.deleteSourceImplementation(sourceImplementationIdRequestBody1);
+        sourceHandler.deleteSource(sourceIdRequestBody1);
         return sourceImplementation;
       }
     } catch (Exception e) {
       LOGGER.error("Error while checking connection", e);
     }
 
-    sourceImplementationsHandler.deleteSourceImplementation(sourceImplementationIdRequestBody);
+    sourceHandler.deleteSource(sourceIdRequestBody);
     throw new KnownException(400, "Unable to connect to source");
   }
 
