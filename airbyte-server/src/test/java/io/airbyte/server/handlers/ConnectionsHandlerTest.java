@@ -51,7 +51,7 @@ import io.airbyte.config.StandardSyncSchedule;
 import io.airbyte.config.persistence.ConfigNotFoundException;
 import io.airbyte.config.persistence.ConfigRepository;
 import io.airbyte.server.helpers.ConnectionHelpers;
-import io.airbyte.server.helpers.SourceImplementationHelpers;
+import io.airbyte.server.helpers.SourceHelpers;
 import java.io.IOException;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -74,7 +74,7 @@ class ConnectionsHandlerTest {
     configRepository = mock(ConfigRepository.class);
     uuidGenerator = mock(Supplier.class);
 
-    sourceImplementation = SourceImplementationHelpers.generateSourceImplementation(UUID.randomUUID());
+    sourceImplementation = SourceHelpers.generateSource(UUID.randomUUID());
     standardSync = ConnectionHelpers.generateSyncWithSourceImplId(sourceImplementation.getSourceImplementationId());
     standardSyncSchedule = ConnectionHelpers.generateSchedule(standardSync.getConnectionId());
 

@@ -163,13 +163,13 @@ public class AcceptanceTests {
 
   @Test
   @Order(3)
-  public void testCreateSourceImplementation() throws ApiException {
+  public void testCreateSource() throws ApiException {
     String dbName = "acc-test-db";
     UUID postgresSourceDefinitionId = getPostgresSourceDefinitionId();
     UUID defaultWorkspaceId = PersistenceConstants.DEFAULT_WORKSPACE_ID;
     Map<Object, Object> sourceDbConfig = getSourceDbConfig();
 
-    SourceRead response = createSourceImplementation(
+    SourceRead response = createSource(
         dbName,
         defaultWorkspaceId,
         postgresSourceDefinitionId,
@@ -195,9 +195,9 @@ public class AcceptanceTests {
   @Test
   @Order(5)
   public void testDiscoverSourceSchema() throws ApiException, IOException {
-    UUID sourceImplementationId = createPostgresSource().getSourceId();
+    UUID sourceId = createPostgresSource().getSourceId();
 
-    SourceSchema actualSchema = discoverSourceSchema(sourceImplementationId);
+    SourceSchema actualSchema = discoverSourceSchema(sourceId);
 
     SourceSchema expectedSchema = Jsons.deserialize(MoreResources.readResource("simple_postgres_source_schema.json"), SourceSchema.class);
     assertEquals(expectedSchema, actualSchema);
@@ -261,9 +261,9 @@ public class AcceptanceTests {
     assertSourceAndTargetDbInSync(sourcePsql, targetPsql);
   }
 
-  private SourceSchema discoverSourceSchema(UUID sourceImplementationId) throws ApiException {
+  private SourceSchema discoverSourceSchema(UUID sourceId) throws ApiException {
     return apiClient.getSourceApi().discoverSchemaForSource(
-        new SourceIdRequestBody().sourceId(sourceImplementationId)).getSchema();
+        new SourceIdRequestBody().sourceId(sourceId)).getSchema();
   }
 
   private void assertSourceAndTargetDbInSync(PostgreSQLContainer sourceDb, PostgreSQLContainer targetDb) throws SQLException {
@@ -422,22 +422,22 @@ public class AcceptanceTests {
   }
 
   private SourceRead createPostgresSource() throws ApiException {
-    return createSourceImplementation(
+    return createSource(
         "acceptanceTestDb-" + UUID.randomUUID().toString(),
         PersistenceConstants.DEFAULT_WORKSPACE_ID,
         getPostgresSourceDefinitionId(),
         getSourceDbConfig());
   }
 
-  private SourceRead createSourceImplementation(String name, UUID workspaceId, UUID sourceDefId, Map<Object, Object> sourceConfig)
+  private SourceRead createSource(String name, UUID workspaceId, UUID sourceDefId, Map<Object, Object> sourceConfig)
       throws ApiException {
-    SourceRead sourceImplementation = apiClient.getSourceApi().createSource(new SourceCreate()
+    SourceRead source = apiClient.getSourceApi().createSource(new SourceCreate()
         .name(name)
         .sourceDefinitionId(sourceDefId)
         .workspaceId(workspaceId)
         .connectionConfiguration(Jsons.jsonNode(sourceConfig)));
-    sourceImplIds.add(sourceImplementation.getSourceId());
-    return sourceImplementation;
+    sourceImplIds.add(source.getSourceId());
+    return source;
   }
 
   private UUID getPostgresSourceDefinitionId() throws ApiException {

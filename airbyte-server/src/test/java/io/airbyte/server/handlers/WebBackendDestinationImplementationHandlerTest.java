@@ -41,8 +41,8 @@ import io.airbyte.config.DestinationConnectionImplementation;
 import io.airbyte.config.StandardDestination;
 import io.airbyte.config.persistence.ConfigNotFoundException;
 import io.airbyte.server.errors.KnownException;
+import io.airbyte.server.helpers.DestinationDefinitionHelpers;
 import io.airbyte.server.helpers.DestinationHelpers;
-import io.airbyte.server.helpers.DestinationImplementationHelpers;
 import java.io.IOException;
 import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
@@ -65,10 +65,10 @@ public class WebBackendDestinationImplementationHandlerTest {
     schedulerHandler = mock(SchedulerHandler.class);
     wbDestinationImplementationHandler = new WebBackendDestinationImplementationHandler(destinationImplementationsHandler, schedulerHandler);
 
-    final StandardDestination standardDestination = DestinationHelpers.generateDestination();
+    final StandardDestination standardDestination = DestinationDefinitionHelpers.generateDestination();
     DestinationConnectionImplementation destinationImplementation =
-        DestinationImplementationHelpers.generateDestinationImplementation(UUID.randomUUID());
-    destinationImplementationRead = DestinationImplementationHelpers.getDestinationImplementationRead(destinationImplementation, standardDestination);
+        DestinationHelpers.generateDestination(UUID.randomUUID());
+    destinationImplementationRead = DestinationHelpers.getDestinationImplementationRead(destinationImplementation, standardDestination);
   }
 
   @Test
@@ -128,8 +128,8 @@ public class WebBackendDestinationImplementationHandlerTest {
     destinationImplementationCreate.setConnectionConfiguration(destinationImplementationRead.getConnectionConfiguration());
     destinationImplementationCreate.setWorkspaceId(destinationImplementationRead.getWorkspaceId());
 
-    DestinationImplementationRead newDestinationImplementation = DestinationImplementationHelpers
-        .getDestinationImplementationRead(DestinationImplementationHelpers.generateDestinationImplementation(UUID.randomUUID()), DestinationHelpers
+    DestinationImplementationRead newDestinationImplementation = DestinationHelpers
+        .getDestinationImplementationRead(DestinationHelpers.generateDestination(UUID.randomUUID()), DestinationDefinitionHelpers
             .generateDestination());
 
     when(destinationImplementationsHandler.createDestinationImplementation(destinationImplementationCreate)).thenReturn(newDestinationImplementation);
@@ -165,8 +165,8 @@ public class WebBackendDestinationImplementationHandlerTest {
     destinationImplementationCreate.setConnectionConfiguration(destinationImplementationRead.getConnectionConfiguration());
     destinationImplementationCreate.setWorkspaceId(destinationImplementationRead.getWorkspaceId());
 
-    DestinationImplementationRead newDestinationImplementation = DestinationImplementationHelpers.getDestinationImplementationRead(
-        DestinationImplementationHelpers.generateDestinationImplementation(UUID.randomUUID()), DestinationHelpers.generateDestination());
+    DestinationImplementationRead newDestinationImplementation = DestinationHelpers.getDestinationImplementationRead(
+        DestinationHelpers.generateDestination(UUID.randomUUID()), DestinationDefinitionHelpers.generateDestination());
 
     when(destinationImplementationsHandler.createDestinationImplementation(destinationImplementationCreate)).thenReturn(newDestinationImplementation);
 

@@ -75,7 +75,7 @@ public class SchedulerHandler {
     this.schedulerPersistence = schedulerPersistence;
   }
 
-  public CheckConnectionRead checkSourceImplementationConnection(SourceIdRequestBody sourceIdRequestBody)
+  public CheckConnectionRead checkSourceConnection(SourceIdRequestBody sourceIdRequestBody)
       throws ConfigNotFoundException, IOException, JsonValidationException {
     final SourceConnectionImplementation connectionImplementation =
         configRepository.getSourceConnectionImplementation(sourceIdRequestBody.getSourceId());
@@ -121,7 +121,7 @@ public class SchedulerHandler {
     return checkConnectionRead;
   }
 
-  public SourceDiscoverSchemaRead discoverSchemaForSourceImplementation(SourceIdRequestBody sourceIdRequestBody)
+  public SourceDiscoverSchemaRead discoverSchemaForSource(SourceIdRequestBody sourceIdRequestBody)
       throws ConfigNotFoundException, IOException, JsonValidationException {
     final SourceConnectionImplementation connectionImplementation =
         configRepository.getSourceConnectionImplementation(sourceIdRequestBody.getSourceId());

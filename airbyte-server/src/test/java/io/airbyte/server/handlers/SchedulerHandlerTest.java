@@ -56,8 +56,8 @@ import io.airbyte.scheduler.Job;
 import io.airbyte.scheduler.JobStatus;
 import io.airbyte.scheduler.persistence.SchedulerPersistence;
 import io.airbyte.server.helpers.ConnectionHelpers;
-import io.airbyte.server.helpers.DestinationImplementationHelpers;
-import io.airbyte.server.helpers.SourceImplementationHelpers;
+import io.airbyte.server.helpers.DestinationHelpers;
+import io.airbyte.server.helpers.SourceHelpers;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -98,24 +98,24 @@ class SchedulerHandlerTest {
   }
 
   @Test
-  void testCheckSourceImplementationConnection() throws JsonValidationException, IOException, ConfigNotFoundException {
-    SourceConnectionImplementation sourceImpl = SourceImplementationHelpers.generateSourceImplementation(UUID.randomUUID());
+  void testCheckSourceConnection() throws JsonValidationException, IOException, ConfigNotFoundException {
+    SourceConnectionImplementation source = SourceHelpers.generateSource(UUID.randomUUID());
     final SourceIdRequestBody request =
-        new SourceIdRequestBody().sourceId(sourceImpl.getSourceImplementationId());
+        new SourceIdRequestBody().sourceId(source.getSourceImplementationId());
 
-    when(configRepository.getStandardSource(sourceImpl.getSourceId()))
+    when(configRepository.getStandardSource(source.getSourceId()))
         .thenReturn(new StandardSource()
             .withDockerRepository(SOURCE_DOCKER_REPO)
             .withDockerImageTag(SOURCE_DOCKER_TAG)
-            .withSourceId(sourceImpl.getSourceId()));
-    when(configRepository.getSourceConnectionImplementation(sourceImpl.getSourceImplementationId())).thenReturn(sourceImpl);
-    when(schedulerPersistence.createSourceCheckConnectionJob(sourceImpl, SOURCE_DOCKER_IMAGE)).thenReturn(JOB_ID);
+            .withSourceId(source.getSourceId()));
+    when(configRepository.getSourceConnectionImplementation(source.getSourceImplementationId())).thenReturn(source);
+    when(schedulerPersistence.createSourceCheckConnectionJob(source, SOURCE_DOCKER_IMAGE)).thenReturn(JOB_ID);
     when(schedulerPersistence.getJob(JOB_ID)).thenReturn(inProgressJob).thenReturn(completedJob);
 
-    schedulerHandler.checkSourceImplementationConnection(request);
+    schedulerHandler.checkSourceConnection(request);
 
-    verify(configRepository).getSourceConnectionImplementation(sourceImpl.getSourceImplementationId());
-    verify(schedulerPersistence).createSourceCheckConnectionJob(sourceImpl, SOURCE_DOCKER_IMAGE);
+    verify(configRepository).getSourceConnectionImplementation(source.getSourceImplementationId());
+    verify(schedulerPersistence).createSourceCheckConnectionJob(source, SOURCE_DOCKER_IMAGE);
     verify(schedulerPersistence, times(2)).getJob(JOB_ID);
   }
 
@@ -199,7 +199,7 @@ class SchedulerHandlerTest {
 
   @Test
   void testCheckDestinationImplementationConnection() throws IOException, JsonValidationException, ConfigNotFoundException {
-    DestinationConnectionImplementation destinationImpl = DestinationImplementationHelpers.generateDestinationImplementation(UUID.randomUUID());
+    DestinationConnectionImplementation destinationImpl = DestinationHelpers.generateDestination(UUID.randomUUID());
     final DestinationImplementationIdRequestBody request =
         new DestinationImplementationIdRequestBody().destinationImplementationId(destinationImpl.getDestinationImplementationId());
 
@@ -220,24 +220,24 @@ class SchedulerHandlerTest {
   }
 
   @Test
-  void testDiscoverSchemaForSourceImplementation() throws IOException, JsonValidationException, ConfigNotFoundException {
-    SourceConnectionImplementation sourceImpl = SourceImplementationHelpers.generateSourceImplementation(UUID.randomUUID());
+  void testDiscoverSchemaForSource() throws IOException, JsonValidationException, ConfigNotFoundException {
+    SourceConnectionImplementation source = SourceHelpers.generateSource(UUID.randomUUID());
     final SourceIdRequestBody request =
-        new SourceIdRequestBody().sourceId(sourceImpl.getSourceImplementationId());
+        new SourceIdRequestBody().sourceId(source.getSourceImplementationId());
 
-    when(configRepository.getStandardSource(sourceImpl.getSourceId()))
+    when(configRepository.getStandardSource(source.getSourceId()))
         .thenReturn(new StandardSource()
             .withDockerRepository(SOURCE_DOCKER_REPO)
             .withDockerImageTag(SOURCE_DOCKER_TAG)
-            .withSourceId(sourceImpl.getSourceId()));
-    when(configRepository.getSourceConnectionImplementation(sourceImpl.getSourceImplementationId())).thenReturn(sourceImpl);
-    when(schedulerPersistence.createDiscoverSchemaJob(sourceImpl, SOURCE_DOCKER_IMAGE)).thenReturn(JOB_ID);
+            .withSourceId(source.getSourceId()));
+    when(configRepository.getSourceConnectionImplementation(source.getSourceImplementationId())).thenReturn(source);
+    when(schedulerPersistence.createDiscoverSchemaJob(source, SOURCE_DOCKER_IMAGE)).thenReturn(JOB_ID);
     when(schedulerPersistence.getJob(JOB_ID)).thenReturn(inProgressJob).thenReturn(completedJob);
 
-    schedulerHandler.discoverSchemaForSourceImplementation(request);
+    schedulerHandler.discoverSchemaForSource(request);
 
-    verify(configRepository).getSourceConnectionImplementation(sourceImpl.getSourceImplementationId());
-    verify(schedulerPersistence).createDiscoverSchemaJob(sourceImpl, SOURCE_DOCKER_IMAGE);
+    verify(configRepository).getSourceConnectionImplementation(source.getSourceImplementationId());
+    verify(schedulerPersistence).createDiscoverSchemaJob(source, SOURCE_DOCKER_IMAGE);
     verify(schedulerPersistence, times(2)).getJob(JOB_ID);
   }
 
@@ -245,9 +245,9 @@ class SchedulerHandlerTest {
   void testSyncConnection() throws JsonValidationException, IOException, ConfigNotFoundException {
     final StandardSync standardSync = ConnectionHelpers.generateSyncWithSourceImplId(UUID.randomUUID());
     final ConnectionIdRequestBody request = new ConnectionIdRequestBody().connectionId(standardSync.getConnectionId());
-    SourceConnectionImplementation sourceImpl = SourceImplementationHelpers.generateSourceImplementation(UUID.randomUUID())
+    SourceConnectionImplementation sourceImpl = SourceHelpers.generateSource(UUID.randomUUID())
         .withSourceImplementationId(standardSync.getSourceImplementationId());
-    DestinationConnectionImplementation destinationImpl = DestinationImplementationHelpers.generateDestinationImplementation(UUID.randomUUID())
+    DestinationConnectionImplementation destinationImpl = DestinationHelpers.generateDestination(UUID.randomUUID())
         .withDestinationImplementationId(standardSync.getDestinationImplementationId());
 
     when(configRepository.getStandardSource(sourceImpl.getSourceId()))

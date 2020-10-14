@@ -55,8 +55,8 @@ import io.airbyte.config.persistence.ConfigNotFoundException;
 import io.airbyte.config.persistence.ConfigRepository;
 import io.airbyte.server.helpers.ConnectionHelpers;
 import io.airbyte.server.helpers.ConnectorSpecificationHelpers;
+import io.airbyte.server.helpers.DestinationDefinitionHelpers;
 import io.airbyte.server.helpers.DestinationHelpers;
-import io.airbyte.server.helpers.DestinationImplementationHelpers;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.UUID;
@@ -87,7 +87,7 @@ class DestinationImplementationsHandlerTest {
     connectionsHandler = mock(ConnectionsHandler.class);
     schedulerHandler = mock(SchedulerHandler.class);
 
-    standardDestination = DestinationHelpers.generateDestination();
+    standardDestination = DestinationDefinitionHelpers.generateDestination();
     destinationDefinitionIdRequestBody = new DestinationDefinitionIdRequestBody().destinationDefinitionId(standardDestination.getDestinationId());
     ConnectorSpecification connectorSpecification = ConnectorSpecificationHelpers.generateConnectorSpecification();
     destinationDefinitionSpecificationRead = new DestinationDefinitionSpecificationRead()
@@ -95,7 +95,7 @@ class DestinationImplementationsHandlerTest {
         .destinationDefinitionId(standardDestination.getDestinationId())
         .documentationUrl(connectorSpecification.getDocumentationUrl().toString());
 
-    destinationConnectionImplementation = DestinationImplementationHelpers.generateDestinationImplementation(standardDestination.getDestinationId());
+    destinationConnectionImplementation = DestinationHelpers.generateDestination(standardDestination.getDestinationId());
     destinationImplementationsHandler =
         new DestinationImplementationsHandler(configRepository, validator, schedulerHandler, connectionsHandler, uuidGenerator);
   }
@@ -118,7 +118,7 @@ class DestinationImplementationsHandlerTest {
         .name(destinationConnectionImplementation.getName())
         .workspaceId(destinationConnectionImplementation.getWorkspaceId())
         .destinationDefinitionId(standardDestination.getDestinationId())
-        .connectionConfiguration(DestinationImplementationHelpers.getTestImplementationJson());
+        .connectionConfiguration(DestinationHelpers.getTestDestinationJson());
 
     final DestinationImplementationRead actualDestinationImplementationRead =
         destinationImplementationsHandler.createDestinationImplementation(destinationImplementationCreate);
@@ -128,7 +128,7 @@ class DestinationImplementationsHandlerTest {
         .destinationDefinitionId(standardDestination.getDestinationId())
         .workspaceId(destinationConnectionImplementation.getWorkspaceId())
         .destinationImplementationId(destinationConnectionImplementation.getDestinationImplementationId())
-        .connectionConfiguration(DestinationImplementationHelpers.getTestImplementationJson())
+        .connectionConfiguration(DestinationHelpers.getTestDestinationJson())
         .destinationName(standardDestination.getName());
 
     assertEquals(expectedDestinationImplementationRead, actualDestinationImplementationRead);

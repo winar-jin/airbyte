@@ -34,39 +34,41 @@ import io.airbyte.api.model.SourceRecreate;
 import io.airbyte.commons.json.JsonValidationException;
 import io.airbyte.config.persistence.ConfigNotFoundException;
 import io.airbyte.server.errors.KnownException;
+
 import java.io.IOException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WebBackendSourceImplementationHandler {
+public class WebBackendSourceHandler {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(WebBackendSourceImplementationHandler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(WebBackendSourceHandler.class);
 
   private final SourceHandler sourceHandler;
 
   private final SchedulerHandler schedulerHandler;
 
-  public WebBackendSourceImplementationHandler(
-                                               final SourceHandler sourceHandler,
-                                               final SchedulerHandler schedulerHandler) {
+  public WebBackendSourceHandler(
+      final SourceHandler sourceHandler,
+      final SchedulerHandler schedulerHandler) {
     this.sourceHandler = sourceHandler;
     this.schedulerHandler = schedulerHandler;
   }
 
-  public SourceRead webBackendCreateSourceImplementationAndCheck(
-                                                                 SourceCreate sourceCreate)
+  public SourceRead webBackendCreateSourceAndCheck(
+      SourceCreate sourceCreate)
       throws ConfigNotFoundException, IOException, JsonValidationException {
-    SourceRead sourceImplementation = sourceHandler
+    SourceRead source = sourceHandler
         .createSource(sourceCreate);
 
     final SourceIdRequestBody sourceIdRequestBody = new SourceIdRequestBody()
-        .sourceId(sourceImplementation.getSourceId());
+        .sourceId(source.getSourceId());
 
     try {
       CheckConnectionRead checkConnectionRead = schedulerHandler
-          .checkSourceImplementationConnection(sourceIdRequestBody);
+          .checkSourceConnection(sourceIdRequestBody);
       if (checkConnectionRead.getStatus() == SUCCESS) {
-        return sourceImplementation;
+        return source;
       }
     } catch (Exception e) {
       LOGGER.error("Error while checking connection", e);
@@ -76,29 +78,27 @@ public class WebBackendSourceImplementationHandler {
     throw new KnownException(400, "Unable to connect to source");
   }
 
-  public SourceRead webBackendRecreateSourceImplementationAndCheck(
-                                                                   SourceRecreate sourceRecreate)
+  public SourceRead webBackendRecreateSourceAndCheck(SourceRecreate sourceRecreate)
       throws ConfigNotFoundException, IOException, JsonValidationException {
     SourceCreate sourceCreate = new SourceCreate();
     sourceCreate.setConnectionConfiguration(sourceRecreate.getConnectionConfiguration());
     sourceCreate.setName(sourceRecreate.getName());
     sourceCreate.setWorkspaceId(sourceRecreate.getWorkspaceId());
 
-    SourceRead sourceImplementation = sourceHandler
-        .createSource(sourceCreate);
+    SourceRead source = sourceHandler.createSource(sourceCreate);
 
     final SourceIdRequestBody sourceIdRequestBody = new SourceIdRequestBody()
-        .sourceId(sourceImplementation.getSourceId());
+        .sourceId(source.getSourceId());
 
     try {
       CheckConnectionRead checkConnectionRead = schedulerHandler
-          .checkSourceImplementationConnection(sourceIdRequestBody);
+          .checkSourceConnection(sourceIdRequestBody);
       if (checkConnectionRead.getStatus() == SUCCESS) {
         final SourceIdRequestBody sourceIdRequestBody1 = new SourceIdRequestBody()
             .sourceId(sourceRecreate.getSourceId());
 
         sourceHandler.deleteSource(sourceIdRequestBody1);
-        return sourceImplementation;
+        return source;
       }
     } catch (Exception e) {
       LOGGER.error("Error while checking connection", e);

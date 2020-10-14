@@ -82,7 +82,7 @@ import io.airbyte.server.handlers.SourceDefinitionsHandler;
 import io.airbyte.server.handlers.SourceHandler;
 import io.airbyte.server.handlers.WebBackendConnectionsHandler;
 import io.airbyte.server.handlers.WebBackendDestinationImplementationHandler;
-import io.airbyte.server.handlers.WebBackendSourceImplementationHandler;
+import io.airbyte.server.handlers.WebBackendSourceHandler;
 import io.airbyte.server.handlers.WorkspacesHandler;
 import io.airbyte.server.validators.DockerImageValidator;
 import java.io.IOException;
@@ -102,7 +102,7 @@ public class ConfigurationApi implements io.airbyte.api.V1Api {
   private final SchedulerHandler schedulerHandler;
   private final JobHistoryHandler jobHistoryHandler;
   private final WebBackendConnectionsHandler webBackendConnectionsHandler;
-  private final WebBackendSourceImplementationHandler webBackendSourceImplementationHandler;
+  private final WebBackendSourceHandler webBackendSourceHandler;
   private final WebBackendDestinationImplementationHandler webBackendDestinationImplementationHandler;
 
   public ConfigurationApi(final ConfigRepository configRepository, final SchedulerPersistence schedulerPersistence) {
@@ -118,7 +118,7 @@ public class ConfigurationApi implements io.airbyte.api.V1Api {
     sourceHandler = new SourceHandler(configRepository, schemaValidator, schedulerHandler, connectionsHandler);
     jobHistoryHandler = new JobHistoryHandler(schedulerPersistence);
     webBackendConnectionsHandler = new WebBackendConnectionsHandler(connectionsHandler, sourceHandler, jobHistoryHandler);
-    webBackendSourceImplementationHandler = new WebBackendSourceImplementationHandler(sourceHandler, schedulerHandler);
+    webBackendSourceHandler = new WebBackendSourceHandler(sourceHandler, schedulerHandler);
     webBackendDestinationImplementationHandler = new WebBackendDestinationImplementationHandler(destinationImplementationsHandler, schedulerHandler);
     debugInfoHandler = new DebugInfoHandler(configRepository);
   }
@@ -148,7 +148,7 @@ public class ConfigurationApi implements io.airbyte.api.V1Api {
 
   @Override
   public SourceRead webBackendCreateSource(@Valid SourceCreate sourceCreate) {
-    return execute(() -> webBackendSourceImplementationHandler.webBackendCreateSourceImplementationAndCheck(sourceCreate));
+    return execute(() -> webBackendSourceHandler.webBackendCreateSourceAndCheck(sourceCreate));
   }
 
   // SOURCE
@@ -211,12 +211,12 @@ public class ConfigurationApi implements io.airbyte.api.V1Api {
 
   @Override
   public CheckConnectionRead checkConnectionToSource(@Valid SourceIdRequestBody sourceIdRequestBody) {
-    return execute(() -> schedulerHandler.checkSourceImplementationConnection(sourceIdRequestBody));
+    return execute(() -> schedulerHandler.checkSourceConnection(sourceIdRequestBody));
   }
 
   @Override
   public SourceDiscoverSchemaRead discoverSchemaForSource(@Valid SourceIdRequestBody sourceIdRequestBody) {
-    return execute(() -> schedulerHandler.discoverSchemaForSourceImplementation(sourceIdRequestBody));
+    return execute(() -> schedulerHandler.discoverSchemaForSource(sourceIdRequestBody));
   }
   // DESTINATION
 
@@ -336,7 +336,7 @@ public class ConfigurationApi implements io.airbyte.api.V1Api {
 
   @Override
   public SourceRead webBackendRecreateSource(@Valid SourceRecreate sourceRecreate) {
-    return execute(() -> webBackendSourceImplementationHandler.webBackendRecreateSourceImplementationAndCheck(sourceRecreate));
+    return execute(() -> webBackendSourceHandler.webBackendRecreateSourceAndCheck(sourceRecreate));
   }
 
   @Override

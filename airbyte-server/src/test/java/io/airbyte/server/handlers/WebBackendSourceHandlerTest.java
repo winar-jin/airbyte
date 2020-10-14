@@ -41,8 +41,8 @@ import io.airbyte.config.SourceConnectionImplementation;
 import io.airbyte.config.StandardSource;
 import io.airbyte.config.persistence.ConfigNotFoundException;
 import io.airbyte.server.errors.KnownException;
+import io.airbyte.server.helpers.SourceDefinitionHelpers;
 import io.airbyte.server.helpers.SourceHelpers;
-import io.airbyte.server.helpers.SourceImplementationHelpers;
 import java.io.IOException;
 import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
@@ -50,9 +50,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class WebBackendSourceImplementationHandlerTest {
+public class WebBackendSourceHandlerTest {
 
-  private WebBackendSourceImplementationHandler wbSourceImplementationHandler;
+  private WebBackendSourceHandler wbSourceHandler;
 
   private SourceHandler sourceHandler;
   private SchedulerHandler schedulerHandler;
@@ -63,11 +63,11 @@ public class WebBackendSourceImplementationHandlerTest {
   public void setup() throws IOException {
     sourceHandler = mock(SourceHandler.class);
     schedulerHandler = mock(SchedulerHandler.class);
-    wbSourceImplementationHandler = new WebBackendSourceImplementationHandler(sourceHandler, schedulerHandler);
+    wbSourceHandler = new WebBackendSourceHandler(sourceHandler, schedulerHandler);
 
-    final StandardSource standardSource = SourceHelpers.generateSource();
-    SourceConnectionImplementation sourceImplementation = SourceImplementationHelpers.generateSourceImplementation(UUID.randomUUID());
-    sourceRead = SourceImplementationHelpers.getSourceImplementationRead(sourceImplementation, standardSource);
+    final StandardSource standardSource = SourceDefinitionHelpers.generateSource();
+    SourceConnectionImplementation source = SourceHelpers.generateSource(UUID.randomUUID());
+    sourceRead = SourceHelpers.getSourceRead(source, standardSource);
   }
 
   @Test
@@ -86,9 +86,9 @@ public class WebBackendSourceImplementationHandlerTest {
     CheckConnectionRead checkConnectionRead = new CheckConnectionRead();
     checkConnectionRead.setStatus(StatusEnum.SUCCESS);
 
-    when(schedulerHandler.checkSourceImplementationConnection(sourceIdRequestBody)).thenReturn(checkConnectionRead);
+    when(schedulerHandler.checkSourceConnection(sourceIdRequestBody)).thenReturn(checkConnectionRead);
 
-    SourceRead returnedSource = wbSourceImplementationHandler.webBackendCreateSourceImplementationAndCheck(sourceCreate);
+    SourceRead returnedSource = wbSourceHandler.webBackendCreateSourceAndCheck(sourceCreate);
 
     verify(sourceHandler, times(0)).deleteSource(Mockito.any());
     assertEquals(sourceRead, returnedSource);
@@ -107,10 +107,10 @@ public class WebBackendSourceImplementationHandlerTest {
 
     SourceIdRequestBody sourceIdRequestBody = new SourceIdRequestBody();
     sourceIdRequestBody.setSourceId(sourceRead.getSourceId());
-    when(schedulerHandler.checkSourceImplementationConnection(sourceIdRequestBody)).thenReturn(checkConnectionRead);
+    when(schedulerHandler.checkSourceConnection(sourceIdRequestBody)).thenReturn(checkConnectionRead);
 
     Assertions.assertThrows(KnownException.class,
-        () -> wbSourceImplementationHandler.webBackendCreateSourceImplementationAndCheck(sourceCreate));
+        () -> wbSourceHandler.webBackendCreateSourceAndCheck(sourceCreate));
 
     verify(sourceHandler).deleteSource(sourceIdRequestBody);
   }
@@ -122,18 +122,18 @@ public class WebBackendSourceImplementationHandlerTest {
     sourceCreate.setConnectionConfiguration(sourceRead.getConnectionConfiguration());
     sourceCreate.setWorkspaceId(sourceRead.getWorkspaceId());
 
-    SourceRead newSourceImplementation = SourceImplementationHelpers
-        .getSourceImplementationRead(SourceImplementationHelpers.generateSourceImplementation(UUID.randomUUID()), SourceHelpers.generateSource());
+    SourceRead newSource = SourceHelpers
+        .getSourceRead(SourceHelpers.generateSource(UUID.randomUUID()), SourceDefinitionHelpers.generateSource());
 
-    when(sourceHandler.createSource(sourceCreate)).thenReturn(newSourceImplementation);
+    when(sourceHandler.createSource(sourceCreate)).thenReturn(newSource);
 
     SourceIdRequestBody newSourceId = new SourceIdRequestBody();
-    newSourceId.setSourceId(newSourceImplementation.getSourceId());
+    newSourceId.setSourceId(newSource.getSourceId());
 
     CheckConnectionRead checkConnectionRead = new CheckConnectionRead();
     checkConnectionRead.setStatus(StatusEnum.SUCCESS);
 
-    when(schedulerHandler.checkSourceImplementationConnection(newSourceId)).thenReturn(checkConnectionRead);
+    when(schedulerHandler.checkSourceConnection(newSourceId)).thenReturn(checkConnectionRead);
 
     SourceRecreate sourceRecreate = new SourceRecreate();
     sourceRecreate.setName(sourceRead.getName());
@@ -145,10 +145,10 @@ public class WebBackendSourceImplementationHandlerTest {
     oldSourceIdBody.setSourceId(sourceRead.getSourceId());
 
     SourceRead returnedSource =
-        wbSourceImplementationHandler.webBackendRecreateSourceImplementationAndCheck(sourceRecreate);
+        wbSourceHandler.webBackendRecreateSourceAndCheck(sourceRecreate);
 
     verify(sourceHandler, times(1)).deleteSource(Mockito.eq(oldSourceIdBody));
-    assertEquals(newSourceImplementation, returnedSource);
+    assertEquals(newSource, returnedSource);
   }
 
   @Test
@@ -158,18 +158,18 @@ public class WebBackendSourceImplementationHandlerTest {
     sourceCreate.setConnectionConfiguration(sourceRead.getConnectionConfiguration());
     sourceCreate.setWorkspaceId(sourceRead.getWorkspaceId());
 
-    SourceRead newSourceImplementation = SourceImplementationHelpers
-        .getSourceImplementationRead(SourceImplementationHelpers.generateSourceImplementation(UUID.randomUUID()), SourceHelpers.generateSource());
+    SourceRead newSource = SourceHelpers
+        .getSourceRead(SourceHelpers.generateSource(UUID.randomUUID()), SourceDefinitionHelpers.generateSource());
 
-    when(sourceHandler.createSource(sourceCreate)).thenReturn(newSourceImplementation);
+    when(sourceHandler.createSource(sourceCreate)).thenReturn(newSource);
 
     SourceIdRequestBody newSourceId = new SourceIdRequestBody();
-    newSourceId.setSourceId(newSourceImplementation.getSourceId());
+    newSourceId.setSourceId(newSource.getSourceId());
 
     CheckConnectionRead checkConnectionRead = new CheckConnectionRead();
     checkConnectionRead.setStatus(StatusEnum.FAILURE);
 
-    when(schedulerHandler.checkSourceImplementationConnection(newSourceId)).thenReturn(checkConnectionRead);
+    when(schedulerHandler.checkSourceConnection(newSourceId)).thenReturn(checkConnectionRead);
 
     SourceRecreate sourceRecreate = new SourceRecreate();
     sourceRecreate.setName(sourceRead.getName());
@@ -178,7 +178,7 @@ public class WebBackendSourceImplementationHandlerTest {
     sourceRecreate.setSourceId(sourceRead.getSourceId());
 
     Assertions.assertThrows(KnownException.class,
-        () -> wbSourceImplementationHandler.webBackendRecreateSourceImplementationAndCheck(sourceRecreate));
+        () -> wbSourceHandler.webBackendRecreateSourceAndCheck(sourceRecreate));
     verify(sourceHandler, times(1)).deleteSource(Mockito.eq(newSourceId));
   }
 
