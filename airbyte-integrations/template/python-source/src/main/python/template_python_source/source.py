@@ -6,7 +6,6 @@ from airbyte_protocol import AirbyteCatalog
 from airbyte_protocol import AirbyteCheckResponse
 from airbyte_protocol import AirbyteMessage
 from airbyte_protocol import AirbyteRecordMessage
-from airbyte_protocol import AirbyteSpec
 from airbyte_protocol import AirbyteStateMessage
 from airbyte_protocol import Source
 

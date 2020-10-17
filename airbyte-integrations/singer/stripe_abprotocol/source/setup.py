@@ -1,12 +1,12 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='source_stripe_singer',
+    name='source-stripe-singer',
     description='Source implementation for Stripe.',
     author='Airbyte',
     author_email='contact@airbyte.io',
 
-    packages=find_packages(),
+    packages=find_packages(where='src/main/python'),
     package_data={
         '': ['*.json']
     },

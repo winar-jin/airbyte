@@ -1,7 +1,7 @@
 FROM airbyte/integration-base-python:dev
 
 WORKDIR /airbyte/base_singer_code
-COPY base_singer ./base_singer
+COPY src ./src
 COPY setup.py ./
 RUN pip install .
 

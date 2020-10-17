@@ -3,21 +3,15 @@
 Prepare development environment:
 ```
 cd airbyte-integrations/template/python-source
-
-# create & activate virtualenv
-virtualenv build/venv
-source build/venv/bin/activate
-
-# install necessary dependencies
-pip install -r requirements.txt
+pipenv install
 ```
 
 Test locally:
 ```
-python main_dev.py spec
-python main_dev.py check --config sample_files/test_config.json
-python main_dev.py discover --config sample_files/test_config.json
-python main_dev.py read --config sample_files/test_config.json --catalog sample_files/test_catalog.json
+pipenv run python main_dev.py spec
+pipenv run python main_dev.py check --config sample_files/test_config.json
+pipenv run python main_dev.py discover --config sample_files/test_config.json
+pipenv run python main_dev.py read --config sample_files/test_config.json --catalog sample_files/test_catalog.json
 ```
 
 Test image:

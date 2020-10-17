@@ -1,16 +1,16 @@
-import setuptools
+from setuptools import setup, find_packages
 
-setuptools.setup(
+print(find_packages(where='src/main/python'))
+
+setup(
     name='airbyte-protocol',
     description='Contains classes representing the schema of the Airbyte protocol.',
     author='Airbyte',
     author_email='contact@airbyte.io',
     url='https://github.com/airbytehq/airbyte',
 
-    packages=setuptools.find_packages(),
-    package_data={
-        '': ['models/yaml/*.yaml']
-    },
+    packages=find_packages(where='src/main/python'),
+    package_dir={'airbyte_protocol': 'src/main/python/airbyte_protocol'},
 
     install_requires=[
         'PyYAML==5.3.1',

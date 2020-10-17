@@ -6,7 +6,7 @@ setup(
     author='Airbyte',
     author_email='contact@airbyte.io',
 
-    packages=find_packages(),
+    packages=setuptools.find_packages(where='src/main/python'),
 
-    install_requires=['airbyte-protocol']
+    install_requires=[]
 )

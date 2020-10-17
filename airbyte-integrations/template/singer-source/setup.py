@@ -6,7 +6,7 @@ setup(
     author='Airbyte',
     author_email='contact@airbyte.io',
 
-    packages=find_packages(),
+    packages=find_packages(where='src/main/python'),
     package_data={
         '': ['*.json']
     },
