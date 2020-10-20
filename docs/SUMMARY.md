@@ -2,6 +2,8 @@
 
 * [Overview](../README.md)
 * [Getting Started](getting-started-tutorial.md)
+* [FAQ](faq/README.md)
+  * [Differences with...](faq/differences-with....md)
 * [Changelog](changelog.md)
 
 ## Deployment
